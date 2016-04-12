@@ -1,4 +1,5 @@
 crawler/alembic.ini
+crawler/cv/data
 __pycache__/
 *.py[cod]
 *.py.mako
@@ -6,3 +7,6 @@ __pycache__/
 *.sql
 
 .idea
+
+env
+ENV
