@@ -1,0 +1,8 @@
+crawler/alembic.ini
+__pycache__/
+*.py[cod]
+*.py.mako
+
+*.sql
+
+.idea
