@@ -1,1 +1,11 @@
 Generic single-database configuration.
+
+document(http://alembic.readthedocs.org/en/latest/tutorial.html)
+
+alembic revision -m "create account table"
+
+## update
+alembic upgrade head
+
+## downgrade
+alembic downgrade -1
