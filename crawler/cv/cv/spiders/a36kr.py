@@ -20,18 +20,20 @@ class A36krSpider(scrapy.Spider):
         result = json.loads(obj[0])
         post = result['data']['post']
 
+        nowdate = datetime.datetime.now()
+        nowdate = nowdate.strftime('%Y-%m-%d %H:%M:%S')
         item = ArticleItem()
         item['url'] = result['data']['router']
         item['title'] = post['title']
         item['content'] = post['display_content']
         item['summary'] = post['summary']
         item['published_ts'] = post['published_at']
-        item['created_ts'] = datetime.datetime.utcnow()
-        item['updated_ts'] = datetime.datetime.utcnow()
+        item['created_ts'] = nowdate
+        item['updated_ts'] = nowdate
         item['time_str'] = result['data']['router']
         item['author_name'] = post['author']['display_name']
         item['author_link'] = post['author']['domain_path']
         item['author_avatar'] = post['author']['avatar']
-        item['tags'] = post['display_tag_list']
+        item['tags'] = ','.join(post['display_tag_list'])
         # print item
         yield item
