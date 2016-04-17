@@ -4,6 +4,7 @@
 #
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
+from cv.models import Article
 
 class CvPipeline(object):
     def process_item(self, item, spider):
@@ -40,6 +41,8 @@ class ArticlePipeline(CvPipeline):
             print 'Successfully!'
         else:
             print 'Failure!'
+        article = Article()
+        article.getOne(1)
         print '-'.center(100, '-')
         print 'storage end'.center(100, '-')
         print '-'.center(100, '-')
