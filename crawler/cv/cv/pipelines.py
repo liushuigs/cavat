@@ -11,8 +11,8 @@ class CvPipeline(object):
     def insert(self, item):
         import pymysql as MySQLdb
         db_host = '127.0.0.1'
-        db_user = 'common'
-        db_psw = 'common'
+        db_user = 'root'
+        db_psw = '123456'
         db_name = 'cavat'
         conn = None
         conn = MySQLdb.connect(db_host, db_user, db_psw, db_name, charset='utf8', cursorclass=MySQLdb.cursors.DictCursor)

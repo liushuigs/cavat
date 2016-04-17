@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
-import scrapy
 import datetime
 import json
+import scrapy
 from cv.items.article import ArticleItem
+from urlparse import urljoin
+
 
 class A36krSpider(scrapy.Spider):
     name = "36kr"
@@ -15,25 +17,32 @@ class A36krSpider(scrapy.Spider):
         # filename = 'data/'+response.url.split("/")[-1]
         # with open(filename, 'wb') as f:
         #     f.write(response.body)
-        obj = response.css('.js-react-on-rails-component')\
+        obj = response.css('.js-react-on-rails-component') \
             .xpath('@data-props').extract()
         result = json.loads(obj[0])
         post = result['data']['post']
 
-        nowdate = datetime.datetime.now()
+        nowdate = datetime.datetime.utcnow()
         nowdate = nowdate.strftime('%Y-%m-%d %H:%M:%S')
+        domain = 'http://36kr.com'
         item = ArticleItem()
-        item['url'] = result['data']['router']
+        item['url'] = urljoin(domain, result['data']['router'])
         item['title'] = post['title']
         item['content'] = post['display_content']
         item['summary'] = post['summary']
-        item['published_ts'] = post['published_at']
+        item['published_ts'] = self.datetime_str_to_utc(post['published_at'])
         item['created_ts'] = nowdate
         item['updated_ts'] = nowdate
-        item['time_str'] = result['data']['router']
+        item['time_str'] = ''
         item['author_name'] = post['author']['display_name']
-        item['author_link'] = post['author']['domain_path']
+        item['author_link'] = urljoin(domain, post['author']['domain_path'])
         item['author_avatar'] = post['author']['avatar']
         item['tags'] = ','.join(post['display_tag_list'])
         # print item
         yield item
+
+    @staticmethod
+    def datetime_str_to_utc(date_str):
+        dt = datetime.datetime.strptime(date_str[:19], "%Y-%m-%dT%H:%M:%S")
+        ds = dt - datetime.timedelta(hours=8)
+        return ds.strftime('%Y-%m-%d %H:%M:%S')
