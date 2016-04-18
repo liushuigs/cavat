@@ -19,6 +19,8 @@ import sqlalchemy as sa
 def upgrade():
     op.drop_column('article', 'published_ts')
     op.add_column('article', sa.Column('published_ts', sa.TIMESTAMP(), nullable=True))
+    op.drop_column('article', 'url')
+    op.add_column('article', sa.Column('url', sa.String(length=255), nullable=False))
     op.add_column('article', sa.Column('site_unique_id', sa.String(length=10), nullable=True))
     op.add_column('article', sa.Column('author_id', sa.Integer(), nullable=True))
     op.add_column('article', sa.Column('author_email', sa.String(length=30), nullable=True))
@@ -33,6 +35,8 @@ def upgrade():
 def downgrade():
     op.drop_column('article', 'published_ts')
     op.add_column('article', sa.Column('published_ts', sa.Text(), nullable=True))
+    op.drop_column('article', 'url')
+    op.add_column('article', sa.Column('url', sa.String(length=25), nullable=False))
     op.drop_column('article', 'site_unique_id')
     op.drop_column('article', 'author_id')
     op.drop_column('article', 'author_email')

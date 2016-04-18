@@ -12,6 +12,11 @@ class A36krSpider(scrapy.Spider):
     start_urls = (
         'http://36kr.com/p/5045706.html',
     )
+    custom_settings = {
+        'ITEM_PIPELINES': {
+            'cv.pipelines.a36kr.ArticlePipeline': 300
+        }
+    }
 
     def parse(self, response):
         # filename = 'data/'+response.url.split("/")[-1]
@@ -22,8 +27,8 @@ class A36krSpider(scrapy.Spider):
         result = json.loads(obj[0])
         post = result['data']['post']
 
-        nowdate = datetime.datetime.utcnow()
-        nowdate = nowdate.strftime('%Y-%m-%d %H:%M:%S')
+        now_date = datetime.datetime.utcnow()
+        now_date = now_date.strftime('%Y-%m-%d %H:%M:%S')
         domain = 'http://36kr.com'
         item = ArticleItem()
         item['url'] = urljoin(domain, result['data']['router'])
@@ -31,14 +36,13 @@ class A36krSpider(scrapy.Spider):
         item['content'] = post['display_content']
         item['summary'] = post['summary']
         item['published_ts'] = self.datetime_str_to_utc(post['published_at'])
-        item['created_ts'] = nowdate
-        item['updated_ts'] = nowdate
+        item['created_ts'] = now_date
+        item['updated_ts'] = now_date
         item['time_str'] = ''
         item['author_name'] = post['author']['display_name']
         item['author_link'] = urljoin(domain, post['author']['domain_path'])
         item['author_avatar'] = post['author']['avatar']
         item['tags'] = ','.join(post['display_tag_list'])
-        # print item
         yield item
 
     @staticmethod
