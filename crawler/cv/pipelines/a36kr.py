@@ -3,20 +3,20 @@ from cv.models.article import Article
 
 class ArticlePipeline(object):
     def process_item(self, item, spider):
-        print '-'.center(100, '-')
-        print 'storage start'.center(100, '-')
-        print '-'.center(100, '-')
+        # print '-'.center(100, '-')
+        # print 'storage start'.center(100, '-')
+        # print '-'.center(100, '-')
         success = self.insert(item)
         if success:
-            print 'Successfully!'
+            print 'store successfully!'
         else:
-            print 'Failure!'
-        article = Article()
-        article.get_one(1)
-        print '-'.center(100, '-')
-        print 'storage end'.center(100, '-')
-        print '-'.center(100, '-')
-        pass
+            print 'store failure!'
+        # article = Article()
+        # article.get_one(1)
+        # print '-'.center(100, '-')
+        # print 'storage end'.center(100, '-')
+        # print '-'.center(100, '-')
+        # pass
 
     def insert(self, item):
         import pymysql as MySQLdb

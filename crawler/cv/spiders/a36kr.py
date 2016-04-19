@@ -9,8 +9,9 @@ from urlparse import urljoin
 class A36krSpider(scrapy.Spider):
     name = "36kr"
     allowed_domains = ["36kr.com"]
+    list_entry = 'http://36kr.com/asynces/posts/info_flow_post_more.json?b_url_code='
     start_urls = (
-        'http://36kr.com/asynces/posts/info_flow_post_more.json?b_url_code=5046096',
+        list_entry + '5046052',
     )
     custom_settings = {
         'ITEM_PIPELINES': {
@@ -22,14 +23,17 @@ class A36krSpider(scrapy.Spider):
         # filename = 'data/'+response.url.split("/")[-1]
         # with open(filename, 'wb') as f:
         #     f.write(response.body)
-        # print response.body
+        print response.url
         domain = 'http://36kr.com'
         if 'b_url_code' in response.url:
             lists = json.loads(response.body_as_unicode())
-            for page in lists['data']['feed_posts']:
+            for i, page in enumerate(lists['data']['feed_posts']):
                 yield scrapy.Request(domain + '/p/' + str(page['url_code']) + '.html',
                                      meta={'data': page},
                                      callback=self.parse_page)
+                if (i+1) == len(lists['data']['feed_posts']):
+                    print 'end of list'.center(100, '-')
+                    yield scrapy.Request(self.list_entry + str(page['url_code']))
 
     def request_next_page(self):
         pass
