@@ -20,7 +20,7 @@ if [ -f $downfile ] && [ ! -d $destdir ];then
 else
     if [ -d $destdir ];then
         cd $destdir
-        echo "open brower and view website: http://localhost:9200/"
+        echo "open browser and view website: http://localhost:9200/"
         ./bin/elasticsearch
     else
         echo "The folder "$destdir" is not existed!"
