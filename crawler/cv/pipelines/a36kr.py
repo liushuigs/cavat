@@ -28,8 +28,12 @@ class ArticlePipeline(object):
         conn = MySQLdb.connect(db_host, db_user, db_psw, db_name, charset='utf8',
                                cursorclass=MySQLdb.cursors.DictCursor)
         try:
+            # TODO replace it with a more flexible syntax
             sql = "INSERT INTO `article` (" + ','.join(
-                    item.keys()) + ") VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                    item.keys()) + ") VALUES (" \
+                                   "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " \
+                                   "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " \
+                                   "%s)"
             with conn.cursor() as cursor:
                 cursor.execute(sql, item.values())
             conn.commit()

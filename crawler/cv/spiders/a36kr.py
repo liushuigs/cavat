@@ -58,15 +58,15 @@ class A36krSpider(scrapy.Spider):
         item['author_link'] = urljoin(domain, post['author']['domain_path'])
         item['author_avatar'] = post['author']['avatar']
         item['tags'] = ','.join(post['display_tag_list'])
-        # item['site_unique_id'] = data['url_code']
-        # item['author_id'] = data['author']['id']
-        # item['author_email'] = data['author'].get('email', "")
-        # item['author_phone'] = data['author'].get('phone', "")
-        # item['author_role'] = data['author'].get('role', "")
-        # item['cover_real_url'] = data['cover_real_url']
-        # item['source_type'] = data['source_type']
-        # item['views_count'] = data['views_count']
-        # item['cover'] = data['cover']
+        item['site_unique_id'] = data['url_code']
+        item['author_id'] = data['author']['id']
+        item['author_email'] = data['author'].get('email', "")
+        item['author_phone'] = data['author'].get('phone', "")
+        item['author_role'] = data['author'].get('role', "")
+        item['cover_real_url'] = data['cover_real_url']
+        item['source_type'] = data['source_type']
+        item['views_count'] = data['views_count']
+        item['cover'] = data['cover']
         yield item
 
     @staticmethod
