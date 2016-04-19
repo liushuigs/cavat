@@ -27,7 +27,6 @@ alembic upgrade head
 ```
 
 ### run crawler
-make sure you are in PROJECT/crawler/cv folder
 
 run crawler and it will create 5045706.html
 ```
