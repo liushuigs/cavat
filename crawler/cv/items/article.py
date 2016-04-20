@@ -1,0 +1,25 @@
+import scrapy
+
+
+class ArticleItem(scrapy.Item):
+    url = scrapy.Field()
+    title = scrapy.Field()
+    content = scrapy.Field()
+    summary = scrapy.Field()
+    published_ts = scrapy.Field()
+    created_ts = scrapy.Field()
+    updated_ts = scrapy.Field()
+    time_str = scrapy.Field()
+    author_name = scrapy.Field()
+    author_link = scrapy.Field()
+    author_avatar = scrapy.Field()
+    tags = scrapy.Field()
+    site_unique_id = scrapy.Field()
+    author_id = scrapy.Field()
+    author_email = scrapy.Field()
+    author_phone = scrapy.Field()
+    author_role = scrapy.Field()
+    cover_real_url = scrapy.Field()
+    source_type = scrapy.Field()
+    views_count = scrapy.Field()
+    cover = scrapy.Field()
