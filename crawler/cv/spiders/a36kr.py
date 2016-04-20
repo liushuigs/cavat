@@ -11,7 +11,7 @@ class A36krSpider(scrapy.Spider):
     allowed_domains = ["36kr.com"]
     list_entry = 'http://36kr.com/asynces/posts/info_flow_post_more.json?b_url_code='
     start_urls = (
-        list_entry + '5046052',
+        list_entry + '5046151',
     )
     custom_settings = {
         'ITEM_PIPELINES': {
