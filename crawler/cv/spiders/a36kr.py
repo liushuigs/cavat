@@ -12,8 +12,8 @@ class A36krSpider(scrapy.Spider):
     allowed_domains = ["36kr.com"]
     list_entry = 'http://36kr.com/asynces/posts/info_flow_post_more.json?b_url_code='
     start_urls = (
-        # 'http://36kr.com',
-        list_entry + '5046120',
+        'http://36kr.com',
+        # list_entry + '5046211',
     )
     custom_settings = {
         'ITEM_PIPELINES': {
@@ -34,7 +34,7 @@ class A36krSpider(scrapy.Spider):
 
         # from homepage parse the first list entry
         if response.url == domain:
-            first_article_code = re.search('http://36kr.com/p/(\d+)\.html', response.body).group(1)
+            first_article_code = re.search('feed_posts&quot[^\d]*(\d+),', response.body).group(1)
             print 'first_article_code' + first_article_code
             yield scrapy.Request(self.list_entry + first_article_code)
 
