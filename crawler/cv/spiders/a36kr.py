@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import datetime
 import json
+import re
 import scrapy
 from cv.items.article import ArticleItem
 from urlparse import urljoin
@@ -11,7 +12,8 @@ class A36krSpider(scrapy.Spider):
     allowed_domains = ["36kr.com"]
     list_entry = 'http://36kr.com/asynces/posts/info_flow_post_more.json?b_url_code='
     start_urls = (
-        list_entry + '5046151',
+        # 'http://36kr.com',
+        list_entry + '5046120',
     )
     custom_settings = {
         'ITEM_PIPELINES': {
@@ -19,12 +21,24 @@ class A36krSpider(scrapy.Spider):
         }
     }
 
+    # for everyday crawler use: 3 pages(60 articles) a day is enough to cover 36kr's update
+    max_article_page = 3
+    current_num = 0
+
     def parse(self, response):
         # filename = 'data/'+response.url.split("/")[-1]
         # with open(filename, 'wb') as f:
         #     f.write(response.body)
         print response.url
         domain = 'http://36kr.com'
+
+        # from homepage parse the first list entry
+        if response.url == domain:
+            first_article_code = re.search('http://36kr.com/p/(\d+)\.html', response.body).group(1)
+            print 'first_article_code' + first_article_code
+            yield scrapy.Request(self.list_entry + first_article_code)
+
+        # from the list entry parse articles
         if 'b_url_code' in response.url:
             lists = json.loads(response.body_as_unicode())
             for i, page in enumerate(lists['data']['feed_posts']):
@@ -33,10 +47,9 @@ class A36krSpider(scrapy.Spider):
                                      callback=self.parse_page)
                 if (i+1) == len(lists['data']['feed_posts']):
                     print 'end of list'.center(100, '-')
-                    yield scrapy.Request(self.list_entry + str(page['url_code']))
-
-    def request_next_page(self):
-        pass
+                    self.current_num += 1
+                    if self.current_num + 1 < self.max_article_page:
+                        yield scrapy.Request(self.list_entry + str(page['url_code']))
 
     def parse_page(self, response):
         domain = 'http://36kr.com'
