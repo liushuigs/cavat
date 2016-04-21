@@ -61,9 +61,8 @@ NEWSPIDER_MODULE = 'cv.spiders'
 
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
-#ITEM_PIPELINES = {
-#    'cv.pipelines.SomePipeline': 300,
-#}
+# notice: please set ITEM_PIPELINES in each spider, not here
+ITEM_PIPELINES = {}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See http://doc.scrapy.org/en/latest/topics/autothrottle.html
