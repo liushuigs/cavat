@@ -26,9 +26,6 @@ class A36krSpider(scrapy.Spider):
     current_num = 0
 
     def parse(self, response):
-        # filename = 'data/'+response.url.split("/")[-1]
-        # with open(filename, 'wb') as f:
-        #     f.write(response.body)
         print response.url
         domain = 'http://36kr.com'
 
