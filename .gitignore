@@ -11,4 +11,10 @@ __pycache__/
 env
 ENV
 
+#cavat search
+search/es
+search/logs
+search/jdbc
+
+#cavat crawler
 crawler/configs/dev.config.ini
