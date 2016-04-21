@@ -33,6 +33,7 @@ class ArticlePipeline(object):
                                    "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " \
                                    "%s)"
             self.cursor.execute(sql, item.values())
+            self.conn.commit()
             if self.cursor.rowcount:
                 return True
             return self.cursor.rowcount
