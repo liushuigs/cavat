@@ -31,7 +31,7 @@ class A36krSpider(scrapy.Spider):
 
         # from homepage parse the first list entry
         if response.url == domain:
-            first_article_code = re.search('feed_posts&quot[^\d]*(\d+),', response.body).group(1)
+            first_article_code = re.search('url_code&quot;:(\d+),&quot;views_count', response.body).group(1)
             print 'first_article_code' + first_article_code
             yield scrapy.Request(self.list_entry + first_article_code)
 
