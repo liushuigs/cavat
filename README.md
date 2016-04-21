@@ -17,6 +17,7 @@ pip install -r requirements.txt
 ### init database
 ```
 copy alembic.ini.example alembic.ini
+copy configs/dev.config.example.ini configs/dev.config.ini
 ```
 
 change the sqlalchemy.url to your own
@@ -28,12 +29,6 @@ alembic upgrade head
 
 ### run crawler
 
-run crawler and it will create 5045706.html
 ```
 scrapy crawl 36kr
-```
-
-run test, you'll see the parsed result
-```
-python test/test_a36kr.py
 ```

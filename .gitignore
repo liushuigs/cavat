@@ -11,5 +11,4 @@ __pycache__/
 env
 ENV
 
-# configs
-configs/dev.config.example.ini
+crawler/configs/dev.config.ini
