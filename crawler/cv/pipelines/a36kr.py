@@ -1,32 +1,30 @@
 from cv.models.article import Article
+from cv.util.config import CvConfig
+import pymysql as MySQLdb
 
 
 class ArticlePipeline(object):
+    def __init__(self):
+        parser = CvConfig()
+        self.conn = None
+        self.conn = MySQLdb.connect(
+                host=parser.get('db', 'host'),
+                user=parser.get('db', 'user'),
+                passwd=parser.get('db', 'passwd'),
+                db=parser.get('db', 'db'),
+                charset='utf8',
+                cursorclass=MySQLdb.cursors.DictCursor
+        )
+        self.cursor = self.conn.cursor()
+
     def process_item(self, item, spider):
-        # print '-'.center(100, '-')
-        # print 'storage start'.center(100, '-')
-        # print '-'.center(100, '-')
         success = self.insert(item)
         if success:
             print 'store successfully!'
         else:
             print 'store failure!'
-        # article = Article()
-        # article.get_one(1)
-        # print '-'.center(100, '-')
-        # print 'storage end'.center(100, '-')
-        # print '-'.center(100, '-')
-        # pass
 
     def insert(self, item):
-        import pymysql as MySQLdb
-        db_host = '127.0.0.1'
-        db_user = 'root'
-        db_psw = '123456'
-        db_name = 'cavat'
-        conn = None
-        conn = MySQLdb.connect(db_host, db_user, db_psw, db_name, charset='utf8',
-                               cursorclass=MySQLdb.cursors.DictCursor)
         try:
             # TODO replace it with a more flexible syntax
             sql = "INSERT INTO `article` (" + ','.join(
@@ -34,14 +32,11 @@ class ArticlePipeline(object):
                                    "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " \
                                    "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " \
                                    "%s)"
-            with conn.cursor() as cursor:
-                cursor.execute(sql, item.values())
-            conn.commit()
-            if cursor.rowcount:
+            self.cursor.execute(sql, item.values())
+            if self.cursor.rowcount:
                 return True
-            return cursor.rowcount
+            return self.cursor.rowcount
         except:
             return False
         finally:
-            if conn:
-                conn.close()
+            pass
