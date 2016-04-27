@@ -12,7 +12,7 @@ class TechcrunchSpider(scrapy.Spider):
     allowed_domains = ["techcrunch.com"]
     start_urls = (
         # 'http://techcrunch.com',
-        # 'http://techcrunch.com/page/2/',
+        'http://techcrunch.com/page/4/',
         'http://techcrunch.com/2015/12/27/the-freelancer-generation-'
         'why-startups-and-enterprises-need-to-pay-attention/',
     )
@@ -29,6 +29,10 @@ class TechcrunchSpider(scrapy.Spider):
     def parse(self, response):
         # TODO parse homepage for update
         # TODO parse list page get the article url
+        if re.compile('.*\/page\/\d+\/.*').match(response.url) is not None:
+            lists = response.css('.post-title').xpath('.//a/@href').extract()
+            for link in lists:
+                yield scrapy.Request(link,callback=self.parse_page)
         # parse article url get the content for Item
         if re.compile('.*\d{4}\/\d{2}\/\d{2}.*').match(response.url) is not None:
             item = self.parse_page(response)
