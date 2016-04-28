@@ -11,10 +11,9 @@ class TechcrunchSpider(scrapy.Spider):
     name = "techcrunch"
     allowed_domains = ["techcrunch.com"]
     start_urls = (
-        # 'http://techcrunch.com',
-        'http://techcrunch.com/page/4/',
-        'http://techcrunch.com/2015/12/27/the-freelancer-generation-'
-        'why-startups-and-enterprises-need-to-pay-attention/',
+        'http://techcrunch.com',
+        # 'http://techcrunch.com/page/4/',
+        # 'http://techcrunch.com/2016/04/26/media-mogul-soledad-obrien-is-coming-to-disrupt-ny-2016/',
     )
     custom_settings = {
         'ITEM_PIPELINES': {
@@ -27,13 +26,20 @@ class TechcrunchSpider(scrapy.Spider):
     current_num = 0
 
     def parse(self, response):
-        # TODO parse homepage for update
-        # TODO parse list page get the article url
+        # parse homepage for update
+        domain = 'http://techcrunch.com'
+        if response.url == domain:
+            lists = response.xpath('//a/@href').extract()
+            lists = [x for x in lists if re.compile('http:\/\/techcrunch.com\/\d{4}\/\d{2}\/\d{2}.*').match(x)]
+            lists = list(set(lists))
+            for link in lists:
+                yield scrapy.Request(link,callback=self.parse_page)
+        # parse a specific page
         if re.compile('.*\/page\/\d+\/.*').match(response.url) is not None:
             lists = response.css('.post-title').xpath('.//a/@href').extract()
             for link in lists:
                 yield scrapy.Request(link,callback=self.parse_page)
-        # parse article url get the content for Item
+        # parse a single article
         if re.compile('.*\d{4}\/\d{2}\/\d{2}.*').match(response.url) is not None:
             item = self.parse_page(response)
             yield item
@@ -46,7 +52,8 @@ class TechcrunchSpider(scrapy.Spider):
         item = ArticleItem()
         item['url'] = response.url
         item['title'] = response.css('.tweet-title::text').extract()
-        item['content'] = response.css('.article-entry').extract_first()
+        # TODO filter out script and iframe ?
+        item['content'] = ''.join(response.css('.article-entry').xpath('./*').extract())
         item['summary'] = ''
         item['published_ts'] = response.css('.title-left').xpath('.//time/@datetime').extract_first()
         item['created_ts'] = now_date
