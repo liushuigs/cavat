@@ -17,7 +17,7 @@ class A36krSpider(scrapy.Spider):
     )
     custom_settings = {
         'ITEM_PIPELINES': {
-            'cv.pipelines.a36kr.ArticlePipeline': 300
+            'cv.pipelines.article.ArticlePipeline': 300
         }
     }
 
