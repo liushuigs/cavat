@@ -26,13 +26,16 @@ class ArticlePipeline(object):
 
     def insert(self, item):
         try:
-            # TODO replace it with a more flexible syntax
+            # only update the fields that are not None
+            update_item = {}
+            for key in item:
+                if key is not 'created_ts' and item[key] is not None:
+                    update_item[key] = item[key]
+
             sql = "INSERT INTO `article` (" + ','.join(
-                    item.keys()) + ") VALUES (" \
-                                   "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " \
-                                   "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " \
-                                   "%s)"
-            self.cursor.execute(sql, item.values())
+                    item.keys()) + ") VALUES (" + ",".join(["%s"] * 21) + \
+                  ") ON DUPLICATE KEY UPDATE " + ",".join([key + "=%s" for key in update_item.keys()])
+            self.cursor.execute(sql, item.values() + update_item.values())
             self.conn.commit()
             if self.cursor.rowcount:
                 return True
