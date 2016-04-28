@@ -5,6 +5,7 @@ import re
 import scrapy
 from cv.items.article import ArticleItem
 from urlparse import urljoin
+from ..util.time import datetime_str_to_utc
 
 
 class TechcrunchSpider(scrapy.Spider):
@@ -48,28 +49,30 @@ class TechcrunchSpider(scrapy.Spider):
         domain = 'http://techcrunch.com'
         now_date = datetime.datetime.utcnow()
         now_date = now_date.strftime('%Y-%m-%d %H:%M:%S')
+        published_ts = response.xpath('//meta[@name="sailthru.date"]/@content').extract_first()
+        published_ts = datetime_str_to_utc(published_ts)
 
         item = ArticleItem()
         item['url'] = response.url
         item['title'] = response.css('.tweet-title::text').extract()
         # TODO filter out script and iframe ?
         item['content'] = ''.join(response.css('.article-entry').xpath('./*').extract())
-        item['summary'] = ''
-        item['published_ts'] = response.css('.title-left').xpath('.//time/@datetime').extract_first()
+        item['summary'] = None
+        item['published_ts'] = published_ts
         item['created_ts'] = now_date
         item['updated_ts'] = now_date
-        item['time_str'] = ''
+        item['time_str'] = None
         item['author_name'] = response.css('.byline').xpath('.//a/text()').extract_first()
         item['author_link'] = urljoin(domain, response.css('.byline').xpath('.//a/@href').extract_first())
-        item['author_avatar'] = ''
+        item['author_avatar'] = None
         item['tags'] = ','.join(response.xpath('//meta[@name="category"]/@content').extract())
         item['site_unique_id'] = response.css('.social-share-list').xpath('@data-post-id').extract_first()
         item['author_id'] = 0
-        item['author_email'] = ''
-        item['author_phone'] = ''
-        item['author_role'] = ''
-        item['cover_real_url'] = ''
-        item['source_type'] = ''
-        item['views_count'] = ''
-        item['cover'] = ''
+        item['author_email'] = None
+        item['author_phone'] = None
+        item['author_role'] = None
+        item['cover_real_url'] = None
+        item['source_type'] = None
+        item['views_count'] = 0
+        item['cover'] = None
         return item
