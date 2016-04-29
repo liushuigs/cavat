@@ -13,7 +13,8 @@ class A36krSpider(scrapy.Spider):
     list_entry = 'http://36kr.com/asynces/posts/info_flow_post_more.json?b_url_code='
     start_urls = (
         'http://36kr.com',
-        # list_entry + '5046211',
+        # list_entry + '5046515',
+        # 'http://36kr.com/p/5046516.html',
     )
     custom_settings = {
         'ITEM_PIPELINES': {
@@ -29,28 +30,35 @@ class A36krSpider(scrapy.Spider):
         print response.url
         domain = 'http://36kr.com'
 
-        # from homepage parse the first list entry
+        # parse homepage for update
         if response.url == domain:
-            first_article_code = re.search('url_code&quot;:(\d+),&quot;views_count', response.body).group(1)
-            print 'first_article_code' + first_article_code
-            yield scrapy.Request(self.list_entry + first_article_code)
+            lists = re.findall(r'http:\/\/36kr\.com\/p\/\d+\.html', response.body)
+            for link in lists:
+                yield scrapy.Request(link, callback=self.parse_page)
 
-        # from the list entry parse articles
+        # parse list
         if 'b_url_code' in response.url:
             lists = json.loads(response.body_as_unicode())
             for i, page in enumerate(lists['data']['feed_posts']):
                 yield scrapy.Request(domain + '/p/' + str(page['url_code']) + '.html',
                                      meta={'data': page},
-                                     callback=self.parse_page)
-                if (i+1) == len(lists['data']['feed_posts']):
+                                     callback=self.parse_page_from_list)
+                if (i + 1) == len(lists['data']['feed_posts']):
                     print 'end of list'.center(100, '-')
                     self.current_num += 1
                     if self.current_num + 1 < self.max_article_page:
                         yield scrapy.Request(self.list_entry + str(page['url_code']))
 
+        # parse a single page
+        if re.compile(domain + '\/p\/\d+\.html$').match(response.url):
+            yield self.parse_page(response)
+
+    def parse_page_from_list(self, response):
+        item = self.parse_page(response)
+        yield item
+
     def parse_page(self, response):
         domain = 'http://36kr.com'
-        data = response.meta['data']
         obj = response.css('.js-react-on-rails-component') \
             .xpath('@data-props').extract()
         result = json.loads(obj[0])
@@ -60,7 +68,7 @@ class A36krSpider(scrapy.Spider):
         now_date = now_date.strftime('%Y-%m-%d %H:%M:%S')
 
         item = ArticleItem()
-        item['url'] = urljoin(domain, result['data']['router'])
+        item['url'] = response.url
         item['title'] = post['title']
         item['content'] = post['display_content']
         item['summary'] = post['summary']
@@ -72,16 +80,27 @@ class A36krSpider(scrapy.Spider):
         item['author_link'] = urljoin(domain, post['author']['domain_path'])
         item['author_avatar'] = post['author']['avatar']
         item['tags'] = ','.join(post['display_tag_list'])
-        item['site_unique_id'] = data['url_code']
-        item['author_id'] = data['author']['id']
-        item['author_email'] = data['author'].get('email', "")
-        item['author_phone'] = data['author'].get('phone', "")
-        item['author_role'] = data['author'].get('role', "")
-        item['cover_real_url'] = data['cover_real_url']
-        item['source_type'] = data['source_type']
-        item['views_count'] = data['views_count']
-        item['cover'] = data['cover']
-        yield item
+        item['site_unique_id'] = post['url_code']
+        item['author_id'] = post['author']['id']
+        item['author_email'] = post['author'].get('email', "")
+        item['author_phone'] = post['author'].get('phone', "")
+        item['author_role'] = post['author'].get('role', "")
+        item['cover_real_url'] = post.get('cover_real_url')
+        item['source_type'] = post['source_type']
+        item['views_count'] = post.get('views_count', 0)
+        item['cover'] = post['cover']
+        return item
+
+    @staticmethod
+    # not used for now
+    def find_first_article_code(self, response):
+        """
+        :param self:
+        :param response: list url
+        :return:
+        """
+        first_article_code = re.search('url_code&quot;:(\d+),&quot;views_count', response.body).group(1)
+        return self.list_entry + first_article_code
 
     @staticmethod
     def datetime_str_to_utc(date_str):
