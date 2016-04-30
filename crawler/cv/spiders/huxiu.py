@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
-import scrapy
+from scrapy import Spider, Request
 from cv.items.article import ArticleItem
-import datetime
+from datetime import datetime
 from os.path import splitext, basename
+from cv.util.time import datetime_str_to_utc
+from urlparse import urlparse
 
 
-class HuxiuSpider(scrapy.Spider):
+class HuxiuSpider(Spider):
     name = "huxiu"
     allowed_domains = ["huxiu.com"]
     start_urls = (
@@ -19,21 +21,31 @@ class HuxiuSpider(scrapy.Spider):
     }
 
     def parse(self, response):
-        item = self.parse_page(response)
-        yield item
+        aid = int(basename(response.url))
+        url = urlparse(response.url)
+        yield self.parse_page(response)
+        while(aid > 0):
+            # TODO optimize unparsed url
+            next_url = '/'.join([url.scheme+':/', url.netloc, 'article', str(aid)])
+            aid = aid-1
+            yield Request(next_url, callback=self.parse_page)
 
     def parse_page(self, response):
         sel = response.selector
         item = ArticleItem()
 
-        now_date = datetime.datetime.utcnow()
+        content = sel.css('#article_content').extract_first()
+        if content == None:
+            return item
+
+        now_date = datetime.utcnow()
         now_date = now_date.strftime('%Y-%m-%d %H:%M:%S')
 
         item['url'] = response.url
         item['title'] = sel.xpath('//title/text()').extract_first()
-        item['content'] = sel.css('#article_content').extract_first()
+        item['content'] = content
         item['summary'] = sel.xpath('//meta[@name="description"]/@content').extract_first()
-        item['published_ts'] = self.datetime_str_to_utc(sel.css('.article-time::text').extract_first()+':00')
+        item['published_ts'] = datetime_str_to_utc(sel.css('.article-time::text').extract_first()+':00', 8)
         item['created_ts'] = now_date
         item['updated_ts'] = now_date
         item['time_str'] = None
@@ -41,7 +53,7 @@ class HuxiuSpider(scrapy.Spider):
         item['author_link'] = sel.css('.box-author-info').css('.author-name a::attr(href)').extract_first()
         item['author_avatar'] = sel.css('.box-author-info').css('.author-face img::attr(src)').extract_first()
         item['tags'] = ','.join(sel.css('.tag-box').xpath(".//li[@class='transition']/text()").extract())
-        item['site_unique_id'] = sel.css('.pl-report').xpath('@aid').extract_first()
+        item['site_unique_id'] = basename(response.url)
         item['author_id'] = splitext(basename(item['author_link']))[0]
         item['author_email'] = None
         item['author_phone'] = None
@@ -52,9 +64,5 @@ class HuxiuSpider(scrapy.Spider):
         item['cover'] = None
         return item
 
-    @staticmethod
-    def datetime_str_to_utc(date_str):
-        timedelta = datetime.datetime.utcnow() - datetime.datetime.now()
-        local_datetime = datetime.datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S")
-        result_utc_datetime = local_datetime - timedelta
-        return result_utc_datetime.strftime("%Y-%m-%d %H:%M:%S")
+    def parse_history_page(self, response):
+        pass

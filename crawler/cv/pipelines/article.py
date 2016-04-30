@@ -18,7 +18,9 @@ class ArticlePipeline(object):
         self.cursor = self.conn.cursor()
 
     def process_item(self, item, spider):
-        success = self.insert(item)
+        success = False
+        if item:
+            success = self.insert(item)
         if success:
             print 'store successfully!'
         else:
