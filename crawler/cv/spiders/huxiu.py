@@ -64,5 +64,5 @@ class HuxiuSpider(Spider):
         item['cover'] = None
         return item
 
-    def parse_history_page(self, response):
+    def parse_updated_everyday(self, response):
         pass
