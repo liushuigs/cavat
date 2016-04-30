@@ -45,7 +45,8 @@ class TechcrunchSpider(scrapy.Spider):
             item = self.parse_page(response)
             yield item
 
-    def parse_page(self, response):
+    @staticmethod
+    def parse_page(response):
         domain = 'http://techcrunch.com'
         now_date = datetime.datetime.utcnow()
         now_date = now_date.strftime('%Y-%m-%d %H:%M:%S')
