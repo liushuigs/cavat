@@ -41,6 +41,7 @@ class HuxiuSpider(Spider):
     @staticmethod
     def parse_page(response):
         sel = response.selector
+        domain = 'http://www.huxiu.com'
         item = ArticleItem()
 
         content = sel.css('#article_content').extract_first()
@@ -59,7 +60,8 @@ class HuxiuSpider(Spider):
         item['updated_ts'] = now_date
         item['time_str'] = None
         item['author_name'] = sel.css('.box-author-info').css('.author-name a::text').extract_first()
-        item['author_link'] = sel.css('.box-author-info').css('.author-name a::attr(href)').extract_first()
+        item['author_link'] = urljoin(domain,
+                                      sel.css('.box-author-info').css('.author-name a::attr(href)').extract_first())
         item['author_avatar'] = sel.css('.box-author-info').css('.author-face img::attr(src)').extract_first()
         item['tags'] = ','.join(sel.css('.tag-box').xpath(".//li[@class='transition']/text()").extract())
         item['site_unique_id'] = basename(response.url)
