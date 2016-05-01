@@ -27,7 +27,6 @@ class A36krSpider(scrapy.Spider):
     current_num = 0
 
     def parse(self, response):
-        print response.url
         domain = 'http://36kr.com'
 
         # parse homepage for update

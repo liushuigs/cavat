@@ -18,15 +18,9 @@ class ArticlePipeline(object):
         self.cursor = self.conn.cursor()
 
     def process_item(self, item, spider):
-        success = False
-        if item:
-            success = self.insert(item)
-        if success:
-            print 'store successfully!'
-        else:
-            print 'store failure!'
+        self.insert(item, spider.logger)
 
-    def insert(self, item):
+    def insert(self, item, logger):
         try:
             # only update the fields that are not None
             update_item = {}
@@ -39,10 +33,8 @@ class ArticlePipeline(object):
                   ") ON DUPLICATE KEY UPDATE " + ",".join([key + "=%s" for key in update_item.keys()])
             self.cursor.execute(sql, item.values() + update_item.values())
             self.conn.commit()
-            if self.cursor.rowcount:
-                return True
-            return self.cursor.rowcount
-        except:
-            return False
-        finally:
-            pass
+            row_count = self.cursor.rowcount
+            action = 'update' if row_count == 2 else 'insert'
+            logger.info('[%s] [%s]', action, item["url"])
+        except Exception, e:
+            logger.warning("store error [%s], e: [%s]" % (item["url"], e))

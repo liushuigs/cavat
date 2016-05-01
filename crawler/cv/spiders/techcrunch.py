@@ -13,7 +13,7 @@ class TechcrunchSpider(scrapy.Spider):
     allowed_domains = ["techcrunch.com"]
     start_urls = (
         'http://techcrunch.com',
-        # 'http://techcrunch.com/page/4/',
+        # 'http://techcrunch.com/page/7/',
         # 'http://techcrunch.com/2016/04/26/media-mogul-soledad-obrien-is-coming-to-disrupt-ny-2016/',
     )
     custom_settings = {
@@ -23,29 +23,50 @@ class TechcrunchSpider(scrapy.Spider):
     }
 
     # for everyday crawler use: 3 pages(60 articles) a day is enough to cover 36kr's update
-    max_article_page = 3
+    max_article_page = 5000
     current_num = 0
 
     def parse(self, response):
         # parse homepage for update
         domain = 'http://techcrunch.com'
         if response.url == domain:
-            lists = response.xpath('//a/@href').extract()
-            lists = [x for x in lists if re.compile('http:\/\/techcrunch.com\/\d{4}\/\d{2}\/\d{2}.*').match(x)]
-            lists = list(set(lists))
+            lists = self.parse_article_links(response)
             for link in lists:
                 yield scrapy.Request(link,callback=self.parse_page)
+
+        # parse page list
+        page = re.compile('^'+domain+'\/page\/(\d+)\/').match(response.url)
+        if page is not None:
+            self.current_num = int(page.group(1))
+            lists = self.parse_article_links(response)
+            for link in lists:
+                yield scrapy.Request(link,callback=self.parse_page)
+            self.logger.info('[page] %s', response.url)
+            # request next page
+            if self.current_num < self.max_article_page:
+                self.current_num += 1
+                yield scrapy.Request(domain + '/page/' + str(self.current_num) + '/')
+
         # parse a specific page
         if re.compile('.*\/page\/\d+\/.*').match(response.url) is not None:
             lists = response.css('.post-title').xpath('.//a/@href').extract()
             for link in lists:
                 yield scrapy.Request(link,callback=self.parse_page)
+
         # parse a single article
         if re.compile('.*\d{4}\/\d{2}\/\d{2}.*').match(response.url) is not None:
             item = self.parse_page(response)
             yield item
 
-    def parse_page(self, response):
+    @staticmethod
+    def parse_article_links(response):
+        lists = response.xpath('//a/@href').extract()
+        lists = [x for x in lists if re.compile('http:\/\/techcrunch.com\/\d{4}\/\d{2}\/\d{2}.*').match(x)]
+        lists = list(set(lists))
+        return lists
+
+    @staticmethod
+    def parse_page(response):
         domain = 'http://techcrunch.com'
         now_date = datetime.datetime.utcnow()
         now_date = now_date.strftime('%Y-%m-%d %H:%M:%S')
