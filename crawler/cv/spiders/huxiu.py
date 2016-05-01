@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
-import scrapy
+from scrapy import Spider, Request
 from cv.items.article import ArticleItem
-import datetime
-from os.path import splitext, basename
+from datetime import datetime
+from os.path import splitext, basename, dirname
+from cv.util.time import datetime_str_to_utc
+from urlparse import urlparse, urljoin
 
 
-class HuxiuSpider(scrapy.Spider):
+class HuxiuSpider(Spider):
     name = "huxiu"
     allowed_domains = ["huxiu.com"]
     start_urls = (
-        #'http://www.huxiu.com/',
-        'http://www.huxiu.com/article/146942',
+        'http://www.huxiu.com',
     )
     custom_settings = {
         'ITEM_PIPELINES': {
@@ -18,31 +19,57 @@ class HuxiuSpider(scrapy.Spider):
         }
     }
 
-    def parse(self, response):
-        item = self.parse_page(response)
-        yield item
+    max_article_entry = 15
+    enabled_crontab = False
 
-    def parse_page(self, response):
+    def parse(self, response):
+        url = urlparse(response.url)
+        latest_link = self.get_latest_article(response)
+        latest_link = urljoin(response.url, latest_link)
+        latest_aid = basename(latest_link)
+        int_aid = int(latest_aid)
+        if self.enabled_crontab:
+            end_aid = int_aid - self.max_article_entry
+        else:
+            end_aid = 0
+        while int_aid > end_aid:
+            # TODO optimize unparsed url
+            next_url = '/'.join([url.scheme+':/', url.netloc, 'article', str(int_aid)])
+            int_aid -= 1
+            yield Request(next_url, callback=self.parse_page)
+
+    @staticmethod
+    def parse_page(response):
         sel = response.selector
+        domain = 'http://www.huxiu.com'
         item = ArticleItem()
 
-        now_date = datetime.datetime.utcnow()
+        content = sel.css('#article_content').extract_first()
+        if content is None:
+            return item
+
+        now_date = datetime.utcnow()
         now_date = now_date.strftime('%Y-%m-%d %H:%M:%S')
 
         item['url'] = response.url
         item['title'] = sel.xpath('//title/text()').extract_first()
-        item['content'] = sel.css('#article_content').extract_first()
+        item['content'] = content
         item['summary'] = sel.xpath('//meta[@name="description"]/@content').extract_first()
-        item['published_ts'] = self.datetime_str_to_utc(sel.css('.article-time::text').extract_first()+':00')
+        item['published_ts'] = datetime_str_to_utc(sel.css('.article-time::text').extract_first()+':00', 8)
         item['created_ts'] = now_date
         item['updated_ts'] = now_date
         item['time_str'] = None
         item['author_name'] = sel.css('.box-author-info').css('.author-name a::text').extract_first()
-        item['author_link'] = sel.css('.box-author-info').css('.author-name a::attr(href)').extract_first()
+        item['author_link'] = urljoin(domain,
+                                      sel.css('.box-author-info').css('.author-name a::attr(href)').extract_first())
         item['author_avatar'] = sel.css('.box-author-info').css('.author-face img::attr(src)').extract_first()
         item['tags'] = ','.join(sel.css('.tag-box').xpath(".//li[@class='transition']/text()").extract())
-        item['site_unique_id'] = sel.css('.pl-report').xpath('@aid').extract_first()
-        item['author_id'] = splitext(basename(item['author_link']))[0]
+        item['site_unique_id'] = basename(response.url)
+        if item['author_link'].find('/member') == 0:
+            author_id = splitext(basename(item['author_link']))[0]
+        else:
+            author_id = 0
+        item['author_id'] = author_id
         item['author_email'] = None
         item['author_phone'] = None
         item['author_role'] = sel.css('.box-author-info').css('.icon-team-auth::attr(title)').extract_first()
@@ -53,8 +80,7 @@ class HuxiuSpider(scrapy.Spider):
         return item
 
     @staticmethod
-    def datetime_str_to_utc(date_str):
-        timedelta = datetime.datetime.utcnow() - datetime.datetime.now()
-        local_datetime = datetime.datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S")
-        result_utc_datetime = local_datetime - timedelta
-        return result_utc_datetime.strftime("%Y-%m-%d %H:%M:%S")
+    def get_latest_article(response):
+        all_links = response.css('.wrap-left').xpath('.//a[contains(@href, "article")]/@href').extract()
+        filtered_links = set([ dirname(link) for link in all_links if link.find('/article') == 0])
+        return max(filtered_links)
