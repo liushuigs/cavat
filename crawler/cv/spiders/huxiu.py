@@ -2,17 +2,16 @@
 from scrapy import Spider, Request
 from cv.items.article import ArticleItem
 from datetime import datetime
-from os.path import splitext, basename
+from os.path import splitext, basename, dirname
 from cv.util.time import datetime_str_to_utc
-from urlparse import urlparse
+from urlparse import urlparse, urljoin
 
 
 class HuxiuSpider(Spider):
     name = "huxiu"
     allowed_domains = ["huxiu.com"]
     start_urls = (
-        #'http://www.huxiu.com/',
-        'http://www.huxiu.com/article/146942',
+        'http://www.huxiu.com',
     )
     custom_settings = {
         'ITEM_PIPELINES': {
@@ -20,17 +19,27 @@ class HuxiuSpider(Spider):
         }
     }
 
+    max_article_entry = 15
+    enabled_crontab = False
+
     def parse(self, response):
-        aid = int(basename(response.url))
         url = urlparse(response.url)
-        yield self.parse_page(response)
-        while(aid > 0):
+        latest_link = self.get_latest_article(response)
+        latest_link = urljoin(response.url, latest_link)
+        latest_aid = basename(latest_link)
+        int_aid = int(latest_aid)
+        if self.enabled_crontab:
+            end_aid = int_aid - self.max_article_entry
+        else:
+            end_aid = 0
+        while(int_aid > end_aid):
             # TODO optimize unparsed url
-            next_url = '/'.join([url.scheme+':/', url.netloc, 'article', str(aid)])
-            aid = aid-1
+            next_url = '/'.join([url.scheme+':/', url.netloc, 'article', str(int_aid)])
+            int_aid = int_aid-1
             yield Request(next_url, callback=self.parse_page)
 
-    def parse_page(self, response):
+    @staticmethod
+    def parse_page(response):
         sel = response.selector
         item = ArticleItem()
 
@@ -54,7 +63,11 @@ class HuxiuSpider(Spider):
         item['author_avatar'] = sel.css('.box-author-info').css('.author-face img::attr(src)').extract_first()
         item['tags'] = ','.join(sel.css('.tag-box').xpath(".//li[@class='transition']/text()").extract())
         item['site_unique_id'] = basename(response.url)
-        item['author_id'] = splitext(basename(item['author_link']))[0]
+        if item['author_link'].find('/member') == 0:
+            author_id = splitext(basename(item['author_link']))[0]
+        else:
+            author_id = 0
+        item['author_id'] = author_id
         item['author_email'] = None
         item['author_phone'] = None
         item['author_role'] = sel.css('.box-author-info').css('.icon-team-auth::attr(title)').extract_first()
@@ -64,5 +77,8 @@ class HuxiuSpider(Spider):
         item['cover'] = None
         return item
 
-    def parse_updated_everyday(self, response):
-        pass
+    @staticmethod
+    def get_latest_article(response):
+        all_links = response.css('.wrap-left').xpath('.//a[contains(@href, "article")]/@href').extract()
+        filtered_links = set([ dirname(link) for link in all_links if link.find('/article') == 0])
+        return max(filtered_links)
