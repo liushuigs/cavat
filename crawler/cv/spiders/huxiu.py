@@ -32,10 +32,10 @@ class HuxiuSpider(Spider):
             end_aid = int_aid - self.max_article_entry
         else:
             end_aid = 0
-        while(int_aid > end_aid):
+        while int_aid > end_aid:
             # TODO optimize unparsed url
             next_url = '/'.join([url.scheme+':/', url.netloc, 'article', str(int_aid)])
-            int_aid = int_aid-1
+            int_aid -= 1
             yield Request(next_url, callback=self.parse_page)
 
     @staticmethod
@@ -44,7 +44,7 @@ class HuxiuSpider(Spider):
         item = ArticleItem()
 
         content = sel.css('#article_content').extract_first()
-        if content == None:
+        if content is None:
             return item
 
         now_date = datetime.utcnow()

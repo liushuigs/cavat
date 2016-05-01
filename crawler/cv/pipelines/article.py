@@ -18,7 +18,8 @@ class ArticlePipeline(object):
         self.cursor = self.conn.cursor()
 
     def process_item(self, item, spider):
-        self.insert(item, spider.logger)
+        if item:
+            self.insert(item, spider.logger)
 
     def insert(self, item, logger):
         try:
