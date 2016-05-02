@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import datetime
-import json
 import re
 import scrapy
+from scrapy import signals
+from scrapy.xlib.pydispatch import dispatcher
 from cv.items.article import ArticleItem
-from urlparse import urljoin
 from ..util.time import datetime_str_to_utc
 
 
@@ -13,13 +13,17 @@ class TheNextWebSpider(scrapy.Spider):
     allowed_domains = ["thenextweb.com"]
     list_entry = 'http://thenextweb.com/wp-content/themes/cyberdelia/ajax/partials/grid-pager.php?slug=&taxo=&'
     start_urls = (
-        # 'http://thenextweb.com',
-        list_entry + 'page=260', # TODO crawl from this page next time
+        'http://thenextweb.com',
+        # list_entry + 'page=578', # TODO crawl from this page next time
         # 'http://thenextweb.com/us/2016/05/01/tor-vpn-users-will-target-hacks-new-us-spying-rules/',
     )
     custom_settings = {
+        'DOWNLOAD_DELAY': 0.80,
+        'DOWNLOAD_TIMEOUT': 6,
         'AUTOTHROTTLE_ENABLED': True,
-        'DOWNLOAD_DELAY': 0.30,
+        # 'AUTOTHROTTLE_DEBUG': True,
+        'CONCURRENT_REQUESTS': 13,
+        'CONCURRENT_REQUESTS_PER_DOMAIN': 1,
         'ITEM_PIPELINES': {
             'cv.pipelines.article.ArticlePipeline': 300
         }
@@ -27,12 +31,11 @@ class TheNextWebSpider(scrapy.Spider):
 
     # for everyday crawler use: 3 pages(60 articles) a day is enough to cover 36kr's update
     max_article_page = 1000
-    current_num = 1
+    current_num = 431
     enable_multi_page = True
 
     def parse(self, response):
-        if response.status is not 200:
-            self.logger.warning('[%s] [%s]', response.status, response.url)
+        self.logger.warning('[%s] [%s]', response.status, response.url)
         # parse homepage for update
         domain = 'http://thenextweb.com'
         if response.url == domain:
