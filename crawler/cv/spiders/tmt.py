@@ -30,8 +30,8 @@ class TmtSpider(Spider):
                 link = urljoin(url, link)
                 yield Request(link, callback=self.parse_page)
         else:
-            latest_link = max(home_articles)
-            start_aid = int(splitext(basename(latest_link))[0])
+            gen_aid = (int(splitext(basename(link))[0]) for link in home_articles)
+            start_aid = max(gen_aid)
             end_aid = 0
             while start_aid > end_aid:
                 link = urljoin(url, str(start_aid)+'.html')
