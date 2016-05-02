@@ -20,7 +20,7 @@ class TmtSpider(Spider):
             'cv.pipelines.article.ArticlePipeline': 300
         }
     }
-    enabled_crontab = False
+    enabled_crontab = True 
 
     def parse(self, response):
         url = response.url

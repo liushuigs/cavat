@@ -7,7 +7,7 @@ from os.path import splitext, basename
 import re
 
 class TmtSpider(Spider):
-    name = 'iheima'
+    #name = 'iheima'
     start_urls = (
         'http://www.iheima.com',
     )
