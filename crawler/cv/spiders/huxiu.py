@@ -19,24 +19,26 @@ class HuxiuSpider(Spider):
         }
     }
 
-    max_article_entry = 15
-    enabled_crontab = False
+    enabled_crontab = True
 
     def parse(self, response):
         url = urlparse(response.url)
-        latest_link = self.get_latest_article(response)
-        latest_link = urljoin(response.url, latest_link)
-        latest_aid = basename(latest_link)
-        int_aid = int(latest_aid)
+        updated_everyday = self.get_latest_articles(response)
         if self.enabled_crontab:
-            end_aid = int_aid - self.max_article_entry
+            for link in updated_everyday:
+                link = urljoin(response.url, link)
+                yield Request(link, callback=self.parse_page)
         else:
+            latest_link = max(updated_everyday)
+            latest_link = urljoin(response.url, latest_link)
+            latest_aid = basename(latest_link)
+            int_aid = int(latest_aid)
             end_aid = 0
-        while int_aid > end_aid:
-            # TODO optimize unparsed url
-            next_url = '/'.join([url.scheme+':/', url.netloc, 'article', str(int_aid)])
-            int_aid -= 1
-            yield Request(next_url, callback=self.parse_page)
+            while int_aid > end_aid:
+                # TODO optimize unparsed url
+                next_url = '/'.join([url.scheme+':/', url.netloc, 'article', str(int_aid)])
+                int_aid -= 1
+                yield Request(next_url, callback=self.parse_page)
 
     @staticmethod
     def parse_page(response):
@@ -59,13 +61,13 @@ class HuxiuSpider(Spider):
         item['created_ts'] = now_date
         item['updated_ts'] = now_date
         item['time_str'] = None
-        item['author_name'] = sel.css('.box-author-info').css('.author-name a::text').extract_first()
+        item['author_name'] = response.css('.box-author-info').css('.author-name a::text').extract_first()
         item['author_link'] = urljoin(domain,
-                                      sel.css('.box-author-info').css('.author-name a::attr(href)').extract_first())
+                                      response.css('.box-author-info').css('.author-name a::attr(href)').extract_first())
         item['author_avatar'] = sel.css('.box-author-info').css('.author-face img::attr(src)').extract_first()
         item['tags'] = ','.join(sel.css('.tag-box').xpath(".//li[@class='transition']/text()").extract())
         item['site_unique_id'] = basename(response.url)
-        if item['author_link'].find('/member') == 0:
+        if item['author_link'].find(urljoin(domain, '/member')) == 0:
             author_id = splitext(basename(item['author_link']))[0]
         else:
             author_id = 0
@@ -80,7 +82,7 @@ class HuxiuSpider(Spider):
         return item
 
     @staticmethod
-    def get_latest_article(response):
+    def get_latest_articles(response):
         all_links = response.css('.wrap-left').xpath('.//a[contains(@href, "article")]/@href').extract()
         filtered_links = set([ dirname(link) for link in all_links if link.find('/article') == 0])
-        return max(filtered_links)
+        return filtered_links
