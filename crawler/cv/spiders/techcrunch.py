@@ -17,13 +17,14 @@ class TechcrunchSpider(scrapy.Spider):
         # 'http://techcrunch.com/2016/04/26/media-mogul-soledad-obrien-is-coming-to-disrupt-ny-2016/',
     )
     custom_settings = {
+        'DOWNLOAD_DELAY': 0.15,
         'ITEM_PIPELINES': {
             'cv.pipelines.article.ArticlePipeline': 300
         }
     }
 
     # for everyday crawler use: 3 pages(60 articles) a day is enough to cover 36kr's update
-    max_article_page = 5000
+    max_article_page = 9
     current_num = 0
 
     def parse(self, response):
@@ -32,15 +33,15 @@ class TechcrunchSpider(scrapy.Spider):
         if response.url == domain:
             lists = self.parse_article_links(response)
             for link in lists:
-                yield scrapy.Request(link,callback=self.parse_page)
+                yield scrapy.Request(link, callback=self.parse_page)
 
-        # parse page list
-        page = re.compile('^'+domain+'\/page\/(\d+)\/').match(response.url)
+        # parse multiple pages
+        page = re.compile('^' + domain + '\/page\/(\d+)\/').match(response.url)
         if page is not None:
             self.current_num = int(page.group(1))
             lists = self.parse_article_links(response)
             for link in lists:
-                yield scrapy.Request(link,callback=self.parse_page)
+                yield scrapy.Request(link, callback=self.parse_page)
             self.logger.info('[page] %s', response.url)
             # request next page
             if self.current_num < self.max_article_page:
@@ -48,10 +49,10 @@ class TechcrunchSpider(scrapy.Spider):
                 yield scrapy.Request(domain + '/page/' + str(self.current_num) + '/')
 
         # parse a specific page
-        if re.compile('.*\/page\/\d+\/.*').match(response.url) is not None:
-            lists = response.css('.post-title').xpath('.//a/@href').extract()
-            for link in lists:
-                yield scrapy.Request(link,callback=self.parse_page)
+        # if re.compile('.*\/page\/\d+\/.*').match(response.url) is not None:
+        #     lists = response.css('.post-title').xpath('.//a/@href').extract()
+        #     for link in lists:
+        #         yield scrapy.Request(link, callback=self.parse_page)
 
         # parse a single article
         if re.compile('.*\d{4}\/\d{2}\/\d{2}.*').match(response.url) is not None:
