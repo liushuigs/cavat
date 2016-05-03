@@ -11,15 +11,16 @@ from os.path import splitext, basename
 class PedailySpider(Spider):
     name = 'pedaily'
     start_urls = (
-        'http://www.pedaily.cn',
-        #'http://www.pedaily.cn/top/handlers/Handler.ashx?action=newslist-all&p=1' +
-        #'&url=http://www.pedaily.cn/top/newslist.aspx?c=all',
+        #'http://www.pedaily.cn',
+        'http://www.pedaily.cn/top/handlers/Handler.ashx?action=newslist-all&p=1' +
+        '&url=http://www.pedaily.cn/top/newslist.aspx?c=all',
     )
     custom_settings = {
         'ITEM_PIPELINES': {
             'cv.pipelines.article.ArticlePipeline': 300
         }
     }
+    current_page = 1
     total_page = 6745
 
     def parse(self, response):
@@ -31,14 +32,13 @@ class PedailySpider(Spider):
         else:
             for link in articles:
                 yield Request(link, callback=parse_page)
-                current_page = 1
                 last_page = self.total_page
-                while current_page <= last_page:
-                    current_page += 1
-                    yield Request('http://www.pedaily.cn/top/handlers/Handler.ashx?action=newslist-all&p=' +
-                                  str(current_page)+'&url=http://www.pedaily.cn/top/newslist.aspx?c=all',
-                                  callback=self.parse)
-
+            if self.current_page <= last_page:
+                self.current_page += 1
+                cur_url = 'http://www.pedaily.cn/top/handlers/Handler.ashx?action=newslist-all&p=' + \
+                        str(self.current_page)+'&url=http://www.pedaily.cn/top/newslist.aspx?c=all'
+                self.logger.info('[page %d] %s', self.current_page, cur_url)
+                yield Request(cur_url)
 
 def get_list_of_curpage(response):
     list_submain = ['news', 'pe', 'newseed', 'if']
