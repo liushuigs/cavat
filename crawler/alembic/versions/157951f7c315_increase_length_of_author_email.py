@@ -23,6 +23,7 @@ def upgrade():
 
 
 def downgrade():
-    op.alter_column('article', 'author_email', type_=sa.String(30), nullable=True)
-    op.alter_column('article', 'author_name', type_=sa.String(15), nullable=True)
+    # never need downgrade essentially, so just keep the column length
+    op.alter_column('article', 'author_email', type_=sa.String(50), nullable=True)
+    op.alter_column('article', 'author_name', type_=sa.String(30), nullable=True)
     pass
