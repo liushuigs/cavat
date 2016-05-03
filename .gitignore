@@ -18,3 +18,4 @@ search/jdbc
 
 #cavat crawler
 crawler/configs/dev.config.ini
+crawler/data

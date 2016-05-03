@@ -8,7 +8,7 @@ def datetime_str_to_utc(date_str, timezone=None):
     convert local datetime str to utc str
 
     timezone should be a number
-    example given local timezone is -7000, 2016-04-26 02:00:00 will be converted to 2016-04-26 09:00:00
+    example given local timezone is -7, 2016-04-26 02:00:00 will be converted to 2016-04-26 09:00:00
     """
     if isinstance(timezone, numbers.Number):
         time_delta = timedelta(seconds=timezone * 3600)
