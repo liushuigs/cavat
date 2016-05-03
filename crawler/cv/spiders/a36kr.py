@@ -30,6 +30,7 @@ class A36krSpider(scrapy.Spider):
         domain = 'http://36kr.com'
 
         # parse homepage for update
+        # TODO it doesn't cover every new article in homepage
         if response.url == domain:
             lists = re.findall(r'http:\/\/36kr\.com\/p\/\d+\.html', response.body)
             for link in lists:

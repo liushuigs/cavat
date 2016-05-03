@@ -14,7 +14,7 @@ class TheNextWebSpider(scrapy.Spider):
     list_entry = 'http://thenextweb.com/wp-content/themes/cyberdelia/ajax/partials/grid-pager.php?slug=&taxo=&'
     start_urls = (
         'http://thenextweb.com',
-        # list_entry + 'page=578', # TODO crawl from this page next time
+        # list_entry + 'page=3056',
         # 'http://thenextweb.com/us/2016/05/01/tor-vpn-users-will-target-hacks-new-us-spying-rules/',
     )
     custom_settings = {
@@ -22,7 +22,7 @@ class TheNextWebSpider(scrapy.Spider):
         'DOWNLOAD_TIMEOUT': 6,
         'AUTOTHROTTLE_ENABLED': True,
         # 'AUTOTHROTTLE_DEBUG': True,
-        'CONCURRENT_REQUESTS': 13,
+        'CONCURRENT_REQUESTS': 13, # equals article numbers in each page plus 1
         'CONCURRENT_REQUESTS_PER_DOMAIN': 1,
         'ITEM_PIPELINES': {
             'cv.pipelines.article.ArticlePipeline': 300
@@ -30,12 +30,11 @@ class TheNextWebSpider(scrapy.Spider):
     }
 
     # for everyday crawler use: 3 pages(60 articles) a day is enough to cover 36kr's update
-    max_article_page = 1000
+    max_article_page = 6000
     current_num = 431
     enable_multi_page = True
 
     def parse(self, response):
-        self.logger.warning('[%s] [%s]', response.status, response.url)
         # parse homepage for update
         domain = 'http://thenextweb.com'
         if response.url == domain:
