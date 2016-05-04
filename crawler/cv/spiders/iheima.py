@@ -10,8 +10,8 @@ from os.path import basename, splitext
 class IheimaSpider(scrapy.Spider):
     name = "iheima"
     allowed_domains = ["iheima.com"]
-    max_article_page = 10
-    current_num = 1
+    max_article_page = 1000
+    current_num = 10
     start_urls = (
         'http://www.iheima.com',
         # 'http://www.iheima.com/?page=' + str(current_num) + '&category=全部',
@@ -19,6 +19,11 @@ class IheimaSpider(scrapy.Spider):
     )
     custom_settings = {
         'DOWNLOAD_DELAY': 0.15,
+        'DOWNLOAD_TIMEOUT': 6,
+        'AUTOTHROTTLE_ENABLED': True,
+        # 'AUTOTHROTTLE_DEBUG': True,
+        'CONCURRENT_REQUESTS': 11, # equals article numbers in each page plus 1
+        'CONCURRENT_REQUESTS_PER_DOMAIN': 10,
         'DEFAULT_REQUEST_HEADERS': {
             'X-Requested-With': 'XMLHttpRequest'
         },
