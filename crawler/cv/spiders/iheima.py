@@ -10,8 +10,9 @@ from os.path import basename, splitext
 class IheimaSpider(scrapy.Spider):
     name = "iheima"
     allowed_domains = ["iheima.com"]
-    max_article_page = 1000
-    current_num = 10
+    # max page is 2481  2016/05/04
+    max_article_page = 2481
+    current_num = 912
     start_urls = (
         'http://www.iheima.com',
         # 'http://www.iheima.com/?page=' + str(current_num) + '&category=全部',

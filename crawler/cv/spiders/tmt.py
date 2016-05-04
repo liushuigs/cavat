@@ -16,7 +16,7 @@ class TmtSpider(Spider):
     enabled_crontab = False
     limit = 10
     max_offset = 2000 * limit
-    current_offset = 200
+    current_offset = 7830
     list_entry = 'http://www.tmtpost.com/api/lists/get_index_list?limit='+str(limit)+'&'
     start_urls = (
         'http://www.tmtpost.com',
@@ -54,10 +54,13 @@ class TmtSpider(Spider):
                     self.current_offset += self.limit
                     yield Request(self.list_entry + 'offset=' + str(self.current_offset))
 
-    @staticmethod
-    def parse_article_links(response):
-        ret = loads(response.body)
-        return [x["short_url"] for x in ret["data"]]
+    def parse_article_links(self, response):
+        try:
+            ret = loads(response.body)
+            return [x["short_url"] for x in ret["data"]]
+        except ValueError as err:
+            self.logger.warning('[json parse error] %s', response.url)
+        return []
 
     @staticmethod
     def parse_page(response):
