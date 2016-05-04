@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
+from json import loads
 from urlparse import urljoin
 
 import re
@@ -12,15 +13,26 @@ from ..util.time import datetime_str_to_utc
 
 class TmtSpider(Spider):
     name = 'tmt'
+    enabled_crontab = False
+    limit = 10
+    max_offset = 2000 * limit
+    current_offset = 200
+    list_entry = 'http://www.tmtpost.com/api/lists/get_index_list?limit='+str(limit)+'&'
     start_urls = (
         'http://www.tmtpost.com',
+        # list_entry + 'offset=' + str(current_offset),
     )
     custom_settings = {
+        # 'DOWNLOAD_DELAY': 0.10,
+        'DOWNLOAD_TIMEOUT': 6,
+        'AUTOTHROTTLE_ENABLED': False,
+        # 'AUTOTHROTTLE_DEBUG': True,
+        'CONCURRENT_REQUESTS': 11, # equals article numbers in each page plus 1
+        'CONCURRENT_REQUESTS_PER_DOMAIN': 1,
         'ITEM_PIPELINES': {
             'cv.pipelines.article.ArticlePipeline': 300
         }
     }
-    enabled_crontab = True 
 
     def parse(self, response):
         url = response.url
@@ -30,13 +42,22 @@ class TmtSpider(Spider):
                 link = urljoin(url, link)
                 yield Request(link, callback=self.parse_page)
         else:
-            gen_aid = (int(splitext(basename(link))[0]) for link in home_articles)
-            start_aid = max(gen_aid)
-            end_aid = 0
-            while start_aid > end_aid:
-                link = urljoin(url, str(start_aid)+'.html')
-                start_aid -= 1
-                yield Request(link, callback=self.parse_page)
+            if "lists/get_index_list" in response.url:
+                offset = int(response.url.find("offset=")) + 7
+                self.current_offset = int(response.url[offset:])
+                lists = self.parse_article_links(response)
+                for link in lists:
+                    yield Request(link, callback=self.parse_page)
+                self.logger.info('[page] %s', response.url)
+                # request next page
+                if self.current_offset < self.max_offset:
+                    self.current_offset += self.limit
+                    yield Request(self.list_entry + 'offset=' + str(self.current_offset))
+
+    @staticmethod
+    def parse_article_links(response):
+        ret = loads(response.body)
+        return [x["short_url"] for x in ret["data"]]
 
     @staticmethod
     def parse_page(response):
