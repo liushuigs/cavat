@@ -13,7 +13,7 @@ from ..util.time import datetime_str_to_utc
 
 class TmtSpider(Spider):
     name = 'tmt'
-    enabled_crontab = False
+    enabled_crontab = True
     limit = 10
     max_offset = 2000 * limit
     current_offset = 200
