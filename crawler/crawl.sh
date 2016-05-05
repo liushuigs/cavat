@@ -7,3 +7,6 @@ scrapy crawl techcrunch >> crawl.log
 scrapy crawl thenextweb >> crawl.log
 scrapy crawl huxiu >> crawl.log
 scrapy crawl tmt >> crawl.log
+scrapy crawl iheima >> crawl.log
+scrapy crawl pedaily >> crawl.log
+scrapy crawl startup-partner >> crawl.log
