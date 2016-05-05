@@ -6,3 +6,4 @@ scrapy crawl 36kr >> crawl.log
 scrapy crawl techcrunch >> crawl.log
 scrapy crawl thenextweb >> crawl.log
 scrapy crawl huxiu >> crawl.log
+scrapy crawl tmt >> crawl.log
