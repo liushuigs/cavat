@@ -14,7 +14,7 @@ class TheNextWebSpider(scrapy.Spider):
     list_entry = 'http://thenextweb.com/wp-content/themes/cyberdelia/ajax/partials/grid-pager.php?slug=&taxo=&'
     start_urls = (
         'http://thenextweb.com',
-        # list_entry + 'page=3056',
+        # list_entry + 'page=5651',
         # 'http://thenextweb.com/us/2016/05/01/tor-vpn-users-will-target-hacks-new-us-spying-rules/',
     )
     custom_settings = {
@@ -30,7 +30,8 @@ class TheNextWebSpider(scrapy.Spider):
     }
 
     # for everyday crawler use: 3 pages(60 articles) a day is enough to cover 36kr's update
-    max_article_page = 6000
+    # max page: 6270 2016/05/03
+    max_article_page = 6270
     current_num = 431
     enable_multi_page = True
 
@@ -39,7 +40,6 @@ class TheNextWebSpider(scrapy.Spider):
         domain = 'http://thenextweb.com'
         if response.url == domain:
             lists = self.parse_article_homepage(response)
-            print lists
             for link in lists:
                 yield scrapy.Request(link, callback=self.parse_page)
 
@@ -68,9 +68,10 @@ class TheNextWebSpider(scrapy.Spider):
             item = self.parse_page(response)
             yield item
 
+    @staticmethod
     def parse_article_homepage(response):
         lists = response.xpath('//a/@href').extract()
-        lists = [x for x in lists if re.compile('http:\/\/thenextweb.com\/\d{4}\/\d{2}\/\d{2}.*').match(x)]
+        lists = [x for x in lists if re.compile('.*\d{4}\/\d{2}\/\d{2}.*').match(x)]
         lists = list(set(lists))
         return lists
 
