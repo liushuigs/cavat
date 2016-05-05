@@ -16,7 +16,8 @@ class TmtSpider(Spider):
     enabled_crontab = False
     limit = 10
     max_offset = 2000 * limit
-    current_offset = 7830
+    # max offset is nearly 13000 2016/05/04
+    current_offset = 14000
     list_entry = 'http://www.tmtpost.com/api/lists/get_index_list?limit='+str(limit)+'&'
     start_urls = (
         'http://www.tmtpost.com',
