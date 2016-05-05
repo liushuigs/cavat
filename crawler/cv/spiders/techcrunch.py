@@ -71,7 +71,7 @@ class TechcrunchSpider(scrapy.Spider):
         domain = 'http://techcrunch.com'
         now_date = datetime.datetime.utcnow()
         now_date = now_date.strftime('%Y-%m-%d %H:%M:%S')
-        published_ts = response.xpath('//meta[@name="sailthru.date"]/@content').extract_first()
+        published_ts = response.xpath('//meta[@name="timestamp"]/@content').extract_first()
         published_ts = datetime_str_to_utc(published_ts, -7)
 
         item = ArticleItem()

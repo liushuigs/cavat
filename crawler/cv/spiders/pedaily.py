@@ -11,9 +11,9 @@ from os.path import splitext, basename
 class PedailySpider(Spider):
     name = 'pedaily'
     start_urls = (
-        #'http://www.pedaily.cn',
-        'http://www.pedaily.cn/top/handlers/Handler.ashx?action=newslist-all&p=1' +
-        '&url=http://www.pedaily.cn/top/newslist.aspx?c=all',
+        'http://www.pedaily.cn',
+        # 'http://www.pedaily.cn/top/handlers/Handler.ashx?action=newslist-all&p=1' +
+        # '&url=http://www.pedaily.cn/top/newslist.aspx?c=all',
     )
     custom_settings = {
         'ITEM_PIPELINES': {
