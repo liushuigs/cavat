@@ -10,18 +10,18 @@ from os.path import splitext, basename
 
 class PedailySpider(Spider):
     name = 'pedaily'
+    current_page = 2442
+    total_page = 6745
     start_urls = (
-        'http://www.pedaily.cn',
-        # 'http://www.pedaily.cn/top/handlers/Handler.ashx?action=newslist-all&p=1' +
-        # '&url=http://www.pedaily.cn/top/newslist.aspx?c=all',
+        # 'http://www.pedaily.cn',
+        'http://www.pedaily.cn/top/handlers/Handler.ashx?action=newslist-all&p=' + str(current_page) +
+        '&url=http://www.pedaily.cn/top/newslist.aspx?c=all',
     )
     custom_settings = {
         'ITEM_PIPELINES': {
             'cv.pipelines.article.ArticlePipeline': 300
         }
     }
-    current_page = 1
-    total_page = 6745
 
     def parse(self, response):
         url = response.url
