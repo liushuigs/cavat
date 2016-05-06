@@ -5,7 +5,10 @@ import scrapy
 from ..items.article import ArticleItem
 from ..util.time import datetime_str_to_utc
 from os.path import basename, splitext
+from twisted.python import log
 
+observer = log.PythonLoggingObserver(loggerName=__name__)
+observer.start()
 
 class IheimaSpider(scrapy.Spider):
     name = "iheima"

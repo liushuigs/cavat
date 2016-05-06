@@ -84,3 +84,5 @@ ITEM_PIPELINES = {}
 #HTTPCACHE_STORAGE='scrapy.extensions.httpcache.FilesystemCacheStorage'
 
 LOG_LEVEL = 'INFO'
+LOG_FILE = 'log.log'
+LOG_FORMAT = '%(asctime)s %(name)-12s %(levelname)-8s %(message)s'
