@@ -15,9 +15,11 @@ observer.start()
 
 class PedailySpider(Spider):
     name = 'pedaily'
+    current_page = 3122
+    total_page = 5525
     start_urls = (
         'http://www.pedaily.cn',
-        # 'http://www.pedaily.cn/top/handlers/Handler.ashx?action=newslist-all&p=1' +
+        # 'http://www.pedaily.cn/top/handlers/Handler.ashx?action=newslist-all&p=' + str(current_page) +
         # '&url=http://www.pedaily.cn/top/newslist.aspx?c=all',
     )
     custom_settings = {
@@ -25,8 +27,6 @@ class PedailySpider(Spider):
             'cv.pipelines.article.ArticlePipeline': 300
         }
     }
-    current_page = 1
-    total_page = 6745
 
     def parse(self, response):
         url = response.url
