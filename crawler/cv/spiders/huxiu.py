@@ -5,6 +5,11 @@ from datetime import datetime
 from os.path import splitext, basename, dirname
 from cv.util.time import datetime_str_to_utc
 from urlparse import urlparse, urljoin
+from twisted.python import log
+
+# docs http://stackoverflow.com/questions/2493644/how-to-make-twisted-use-python-logging
+observer = log.PythonLoggingObserver(loggerName=__name__)
+observer.start()
 
 
 class HuxiuSpider(Spider):
