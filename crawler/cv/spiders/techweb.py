@@ -63,11 +63,12 @@ class TechwebSpider(scrapy.Spider):
 
         # parse multiple pages of a specific domain
         if task == 'pages':
+            start_page_num = 1
             lists = self.parse_article_links(response)
             for link in lists:
                 yield scrapy.Request(link, callback=self.parse_item)
             page_num = int(re.compile(r'.*/list_(\d+)\.shtml.*').match(response.url).group(1))
-            if self.current_num == page_num:
+            if page_num == start_page_num:
                 self.max_article_page = self.get_page_total(response)
             self.logger.info('[current_num: %d, max_article_page: %d] [page] %s', page_num,
                              self.max_article_page, response.url)
