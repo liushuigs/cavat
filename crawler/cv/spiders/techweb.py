@@ -31,8 +31,8 @@ class TechwebSpider(scrapy.Spider):
             url = ['http://people.techweb.com.cn/list_'+current_num+'.shtml']
         elif task == 'pages':
             url = (
-                'http://www.techweb.com.cn/news/list_' + current_num + '.shtml',
-                # 'http://www.techweb.com.cn/smarthome/all/list_' + current_num + '.shtml',
+                # 'http://www.techweb.com.cn/news/list_' + current_num + '.shtml',
+                'http://www.techweb.com.cn/smarthome/all/list_' + current_num + '.shtml',
                 # 'http://www.techweb.com.cn/internet/all/list_' + current_num + '.shtml',
                 # 'http://www.techweb.com.cn/it/all/list_' + current_num + '.shtml',
                 # 'http://www.techweb.com.cn/tele/all/list_' + current_num + '.shtml',
@@ -113,9 +113,11 @@ class TechwebSpider(scrapy.Spider):
     def parse_item(response):
         now_date = datetime.utcnow()
         now_date = now_date.strftime('%Y-%m-%d %H:%M:%S')
-        published_ts = response.css('#pubtime_baidu::text').extract_first().strip()
-        published_ts = datetime.strptime(published_ts, '%Y.%m.%d %H:%M:%S').strftime('%Y-%m-%d %H:%M:%S')
-        published_ts = datetime_str_to_utc(published_ts, 8)
+        published_ts = response.css('#pubtime_baidu::text').extract_first()
+        if published_ts:
+            published_ts = published_ts.strip()
+            published_ts = datetime.strptime(published_ts, '%Y.%m.%d %H:%M:%S').strftime('%Y-%m-%d %H:%M:%S')
+            published_ts = datetime_str_to_utc(published_ts, 8)
 
         item = ArticleItem()
         item['url'] = response.url
@@ -126,7 +128,8 @@ class TechwebSpider(scrapy.Spider):
         item['created_ts'] = now_date
         item['updated_ts'] = now_date
         item['time_str'] = None
-        item['author_name'] = response.css('#author_baidu::text').extract_first().split(':')[1]
+        author_name = response.css('#author_baidu::text').extract_first()
+        item['author_name'] = author_name.split(':')[1] if author_name else None
         item['author_link'] = None
         item['author_avatar'] = None
         item['tags'] = response.xpath('//meta[@name="keywords"]/@content').extract_first().rstrip(',')
