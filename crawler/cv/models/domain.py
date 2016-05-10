@@ -1,5 +1,5 @@
 import datetime
-from base import Base
+from cv.models import Base, session
 from sqlalchemy import Column, Integer, TIMESTAMP, String
 
 
@@ -14,7 +14,7 @@ class Domain(Base):
     updated_ts = Column(TIMESTAMP())
 
     @staticmethod
-    def create(session, domain, spider_name, article_num=None):
+    def create(domain, spider_name, article_num=None):
         now_date = datetime.datetime.utcnow()
         record = session.query(Domain).\
             filter_by(domain=domain).first()

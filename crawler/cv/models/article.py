@@ -1,5 +1,5 @@
 from sqlalchemy import func
-from base import Base
+from cv.models import Base, session
 from sqlalchemy import Column, Integer, TIMESTAMP, String, Text
 
 
@@ -14,7 +14,7 @@ class Article(Base):
     url = Column(String(255))
 
     @staticmethod
-    def count(session, domain):
+    def count(domain):
         q = session.query(Article). \
             filter(Article.url.like("%" + domain + "%"))
         count_q = q.statement.with_only_columns([func.count()]).order_by(None)
