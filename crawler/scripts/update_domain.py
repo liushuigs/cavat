@@ -18,6 +18,7 @@ def update_table():
         {"domain": 'thenextweb.com', "spider_name": 'thenextweb'},
         {"domain": 'tmtpost.com', "spider_name": 'tmt'},
         {"domain": 'venturebeat.com', "spider_name": 'venturebeat'},
+        {"domain": 'techweb.com.cn', "spider_name": 'techweb'},
     ]
     for spider in data:
         article_num = Article.count(spider["domain"])
