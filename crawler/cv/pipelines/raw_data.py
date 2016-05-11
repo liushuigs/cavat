@@ -13,7 +13,7 @@ class RawDataPipeline(object):
             return
         # TODO how to remove url with a file extension?
         # a possible way is using response.headers["Content-type"]
-        links = re.findall('(https?://'+entry["domain"]+'[^"#]*)', entry["html"])
+        links = re.findall('(https?://'+entry["domain"]+'[^<>"#]*)', entry["html"])
 
         # remove last / in the url
         links = [self.remove_slash(x) for x in links]
@@ -23,8 +23,16 @@ class RawDataPipeline(object):
 
         # blacklist regex
         black_list = [
+            # 200, but useless
             '.*redirect=.*',
+            # 302
             '.*_/vote/p/.*',
+            # 302
+            '.*_/bookmark/p/.*',
+            # 302
+            '.*_/subscribe/user/.*',
+            # 301
+            '.*medium.com/p/\w+$',
         ]
 
         # create new entries

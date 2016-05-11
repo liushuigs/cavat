@@ -1,6 +1,7 @@
 import scrapy
 from cv.items.raw_data import RawDataItem
 from cv.models.raw_data import RawData
+import re
 
 
 class Medium2Spider(scrapy.Spider):
@@ -28,13 +29,42 @@ class Medium2Spider(scrapy.Spider):
             self.start_urls = [url]
         elif depth is not None:
             self.depth = int(depth)
-            self.start_urls = [x["url"] for x in RawData.get_by_depth(self.depth)]
-            print self.start_urls
+            start_urls = [x["url"] for x in RawData.get_by_depth(self.depth)]
+            valid_urls = [url for url in start_urls if self.is_valid_url(url)]
+            invalid_urls = [url for url in start_urls if self.is_valid_url(url) is False]
+            print invalid_urls
+            self.mark_as_parsed(invalid_urls)
+            self.start_urls = valid_urls
+
+    @staticmethod
+    def mark_as_parsed(urls):
+        for url in urls:
+            RawData.mark_as_parsed(url)
+
+    @staticmethod
+    def is_valid_url(url):
+        black_list = [
+            # 200, but useless
+            '.*redirect=.*',
+            # 302
+            '.*_/vote/p/.*',
+            # 302
+            '.*_/bookmark/p/.*',
+            # 302
+            '.*_/subscribe/user/.*',
+            # 301
+            '.*medium.com/p/\w+$',
+        ]
+        flag = True
+        for rule in black_list:
+            if re.match(rule, url):
+                flag = False
+        return flag
 
     def make_requests_from_url(self, url):
         return scrapy.Request(url, dont_filter=True, meta={
             'dont_redirect': True,
-            'handle_httpstatus_list': [301, 302]
+            'handle_httpstatus_list': [302]
         })
 
     def parse(self, response):
@@ -46,5 +76,7 @@ class Medium2Spider(scrapy.Spider):
         entry["domain"] = 'medium.com'
         if entry["http_status"] == '200':
             entry["html"] = response.body
+        else:
+            entry["html"] = ""
         self.logger.info('[create entry] %s', response.url)
         yield entry

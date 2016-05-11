@@ -34,8 +34,14 @@ class RawData(Base):
             record.updated_ts = now_date
             action = 'update'
         record.extend(kwargs)
-        session.add(record)
-        session.commit()
+        try:
+            session.add(record)
+            session.commit()
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
 
         return action
 
@@ -55,6 +61,15 @@ class RawData(Base):
             with_entities(RawData.id, RawData.depth, RawData.url).\
             all()
         return [{"id": x.id, "depth": x.depth, "url": x.url} for x in records]
+
+    @staticmethod
+    def mark_as_parsed(url):
+        record = session.query(RawData).\
+            filter(RawData.url == url).first()
+        if record is not None:
+            record.parsed_as_entry = True
+            session.add(record)
+            session.commit()
 
 
 def test_create():
