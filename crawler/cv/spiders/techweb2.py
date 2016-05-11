@@ -43,7 +43,7 @@ class Techweb2Spider(scrapy.Spider):
         entry["http_status"] = str(response.status)
         entry["depth"] = self.depth
         entry["parsed_as_entry"] = 1
-        entry["domain"] = 'medium.com'
+        entry["domain"] = 'techweb.com.cn'
         if entry["http_status"] == '200':
             entry["html"] = response.body
         self.logger.info('[create entry] %s', response.url)
