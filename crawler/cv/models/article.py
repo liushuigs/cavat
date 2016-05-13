@@ -15,6 +15,12 @@ class Article(Base):
 
     @staticmethod
     def count(domain):
+        """
+        speed up sqlalchemy count
+        docs https://gist.github.com/hest/8798884
+        :param domain:
+        :return:
+        """
         q = session.query(Article). \
             filter(Article.url.like("%" + domain + "%"))
         count_q = q.statement.with_only_columns([func.count()]).order_by(None)

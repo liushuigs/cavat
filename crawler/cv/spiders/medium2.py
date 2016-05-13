@@ -7,6 +7,7 @@ import re
 class Medium2Spider(scrapy.Spider):
     name = "medium2"
     allowed_domains = ["medium.com"]
+    handle_httpstatus_list = [404, 301]
     depth = 1
     start_urls = (
         'https://medium.com',
@@ -20,7 +21,7 @@ class Medium2Spider(scrapy.Spider):
         'CONCURRENT_REQUESTS_PER_DOMAIN': 1,
         'ITEM_PIPELINES': {
             'cv.pipelines.raw_data.RawDataPipeline': 300
-        }
+        },
     }
 
     def __init__(self, depth=None, url=None, **kwargs):
@@ -32,7 +33,6 @@ class Medium2Spider(scrapy.Spider):
             start_urls = [x["url"] for x in RawData.get_by_depth(self.depth)]
             valid_urls = [url for url in start_urls if self.is_valid_url(url)]
             invalid_urls = [url for url in start_urls if self.is_valid_url(url) is False]
-            print invalid_urls
             self.mark_as_parsed(invalid_urls)
             self.start_urls = valid_urls
 
@@ -64,7 +64,7 @@ class Medium2Spider(scrapy.Spider):
     def make_requests_from_url(self, url):
         return scrapy.Request(url, dont_filter=True, meta={
             'dont_redirect': True,
-            'handle_httpstatus_list': [302]
+            'handle_httpstatus_list': [301, 404, 302, 410]
         })
 
     def parse(self, response):
