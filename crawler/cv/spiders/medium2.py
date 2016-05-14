@@ -1,6 +1,7 @@
 import scrapy
 from cv.items.raw_data import RawDataItem
 from cv.models.raw_data import RawData
+from cv.pipelines.medium import black_list
 import re
 
 
@@ -14,11 +15,11 @@ class Medium2Spider(scrapy.Spider):
         'https://medium.com/browse/b99480981476',
     )
     custom_settings = {
-        'DOWNLOAD_DELAY': 0.80,
-        'DOWNLOAD_TIMEOUT': 6,
-        'AUTOTHROTTLE_ENABLED': True,
-        'CONCURRENT_REQUESTS': 16,
-        'CONCURRENT_REQUESTS_PER_DOMAIN': 1,
+        # 'DOWNLOAD_DELAY': 0.80,
+        # 'DOWNLOAD_TIMEOUT': 1,
+        # 'AUTOTHROTTLE_ENABLED': True,
+        # 'CONCURRENT_REQUESTS': 16,
+        # 'CONCURRENT_REQUESTS_PER_DOMAIN': 1,
         'ITEM_PIPELINES': {
             'cv.pipelines.raw_data.RawDataPipeline': 300
         },
@@ -43,18 +44,6 @@ class Medium2Spider(scrapy.Spider):
 
     @staticmethod
     def is_valid_url(url):
-        black_list = [
-            # 200, but useless
-            '.*redirect=.*',
-            # 302
-            '.*_/vote/p/.*',
-            # 302
-            '.*_/bookmark/p/.*',
-            # 302
-            '.*_/subscribe/user/.*',
-            # 301
-            '.*medium.com/p/\w+$',
-        ]
         flag = True
         for rule in black_list:
             if re.match(rule, url):

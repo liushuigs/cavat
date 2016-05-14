@@ -59,7 +59,7 @@ class RawData(Base):
         records = session.query(RawData).\
             filter(RawData.depth == depth, RawData.parsed_as_entry == 0).\
             with_entities(RawData.id, RawData.depth, RawData.url).\
-            limit(100).all()
+            offset(0).limit(100).all()
         return [{"id": x.id, "depth": x.depth, "url": x.url} for x in records]
 
     @staticmethod

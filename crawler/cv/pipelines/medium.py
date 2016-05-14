@@ -4,6 +4,12 @@ from ..util.time import datetime_str_to_utc
 
 
 def parse_html(response, url=None):
+    """
+    TODO lang="ja"
+    :param response:
+    :param url:
+    :return:
+    """
     item = ArticleItem()
     now_date = datetime.datetime.utcnow()
     now_date = now_date.strftime('%Y-%m-%d %H:%M:%S')
@@ -36,3 +42,22 @@ def parse_html(response, url=None):
     item['views_count'] = 0
     item['cover'] = None
     return item
+
+
+black_list = [
+    # 200, but useless
+    '.*redirect=.*',
+    # 302
+    '.*_/vote/p/.*',
+    # 302
+    '.*_/bookmark/p/.*',
+    # 302
+    '.*_/subscribe/.*',
+    # 301
+    '.*medium.com/p/\w+$',
+    # 404
+    '.*medium.com/story-unbound.*',
+    '.*above-average.*',
+]
+
+__all__ = [parse_html, black_list]

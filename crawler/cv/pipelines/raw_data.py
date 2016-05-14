@@ -1,7 +1,6 @@
 import re
 from cv.models.raw_data import RawData
 
-
 class RawDataPipeline(object):
     def process_item(self, item, spider):
         item["url"] = self.remove_slash(item["url"])
@@ -20,20 +19,6 @@ class RawDataPipeline(object):
 
         # duplicate
         links = list(set(links))
-
-        # blacklist regex
-        black_list = [
-            # 200, but useless
-            '.*redirect=.*',
-            # 302
-            '.*_/vote/p/.*',
-            # 302
-            '.*_/bookmark/p/.*',
-            # 302
-            '.*_/subscribe/user/.*',
-            # 301
-            '.*medium.com/p/\w+$',
-        ]
 
         # create new entries
         for url in links:
