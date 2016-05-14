@@ -11,10 +11,10 @@ logger = logging.getLogger(__name__)
 
 def raw_to_article():
     data = session.query(RawData).\
-        filter(RawData.depth == 5).\
+        filter(RawData.depth == 6).\
         filter(RawData.http_status == '200').\
         filter(RawData.html is not None).\
-        offset(10000).limit(20000).all()
+        offset(70000).limit(10000).all()
     num = 0
     for record in data:
         if re.compile('.*medium.com\/@?.*\/.*').match(str(record.url)) is not None:

@@ -33,8 +33,8 @@ class Medium2Spider(scrapy.Spider):
             self.depth = int(depth)
             start_urls = [x["url"] for x in RawData.get_by_depth(self.depth)]
             valid_urls = [url for url in start_urls if self.is_valid_url(url)]
-            invalid_urls = [url for url in start_urls if self.is_valid_url(url) is False]
-            self.mark_as_parsed(invalid_urls)
+            # invalid_urls = [url for url in start_urls if self.is_valid_url(url) is False]
+            # self.mark_as_parsed(invalid_urls)
             self.start_urls = valid_urls
 
     @staticmethod

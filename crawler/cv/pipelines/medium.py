@@ -1,4 +1,5 @@
 import datetime
+import re
 from cv.items.article import ArticleItem
 from ..util.time import datetime_str_to_utc
 
@@ -19,6 +20,7 @@ def parse_html(response, url=None):
     time_str = published_ts[:19].replace('T', ' ')
     timezone = -7
     published_ts = datetime_str_to_utc(time_str, timezone)
+    source_type = response.css('.postArticle--full').xpath('//@lang').extract_first()
 
     item['url'] = url if url is not None else response.url
     item['title'] = response.xpath('//title/text()').extract_first()
@@ -38,7 +40,7 @@ def parse_html(response, url=None):
     item['author_phone'] = None
     item['author_role'] = None
     item['cover_real_url'] = None
-    item['source_type'] = None
+    item['source_type'] = source_type
     item['views_count'] = 0
     item['cover'] = None
     return item

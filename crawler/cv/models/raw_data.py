@@ -56,10 +56,15 @@ class RawData(Base):
 
     @staticmethod
     def get_by_depth(depth):
+        """
+        filter(RawData.parsed_as_entry == 0)
+        :param depth:
+        :return:
+        """
         records = session.query(RawData).\
-            filter(RawData.depth == depth, RawData.parsed_as_entry == 0).\
+            filter(RawData.depth == depth).\
             with_entities(RawData.id, RawData.depth, RawData.url).\
-            offset(0).limit(100).all()
+            offset(140000).limit(30000).all()
         return [{"id": x.id, "depth": x.depth, "url": x.url} for x in records]
 
     @staticmethod

@@ -1,11 +1,12 @@
 import re
 from cv.models.raw_data import RawData
 
+
 class RawDataPipeline(object):
     def process_item(self, item, spider):
         item["url"] = self.remove_slash(item["url"])
         RawData.create(**item)
-        self.parse_entry(item)
+        # self.parse_entry(item)
 
     def parse_entry(self, entry):
         if entry["html"] is None:
