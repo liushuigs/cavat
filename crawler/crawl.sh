@@ -10,4 +10,5 @@ scrapy crawl tmt
 scrapy crawl iheima
 scrapy crawl pedaily
 scrapy crawl startup-partner
+scrapy crawl medium
 python scripts/update_domain.py

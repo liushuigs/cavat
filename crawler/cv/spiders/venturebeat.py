@@ -11,6 +11,7 @@ from ..util.time import datetime_str_to_utc
 class VenturebeatSpider(scrapy.Spider):
     name = "venturebeat"
     allowed_domains = ["venturebeat.com"]
+    # max pages 1430 2016/05/09
     max_article_page = 100
     current_num = 12
     start_urls = (
