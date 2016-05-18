@@ -1,4 +1,4 @@
-#cavat project init
+#cavat, a general spider based on scrapy
 
 ## set up crawler
 make sure you are in PROJECT/crawler folder
