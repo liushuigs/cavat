@@ -1,7 +1,9 @@
 #!/bin/bash
 
 # add this file to crontab
+cd /Users/xfs/workspace/cavat
 . env/bin/activate
+cd crawler
 scrapy crawl 36kr
 scrapy crawl techcrunch
 scrapy crawl thenextweb
