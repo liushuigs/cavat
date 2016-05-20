@@ -21,3 +21,6 @@ crawler/configs/dev.config.ini
 crawler/data
 crawler/log.log
 crawler/configs/config.py
+
+#cavat api
+api/configs/config.py
