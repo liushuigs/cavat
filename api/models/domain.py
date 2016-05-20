@@ -26,6 +26,6 @@ class Domain(Base):
         return {
             'domain': self.domain,
             'article_num': self.article_num,
-            'created_ts': self.created_ts,
-            'updated_ts': self.updated_ts
+            'created_ts': str(self.created_ts),
+            'updated_ts': str(self.updated_ts)
         }
