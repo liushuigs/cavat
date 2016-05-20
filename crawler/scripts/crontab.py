@@ -4,7 +4,9 @@ usage: add following to crontab
 """
 import os
 import sys
+# add crawler directory to search path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+# add mac osx system site-packages to the search path
 sys.path.append('/Library/Python/2.7/site-packages')
 from scrapy.crawler import CrawlerProcess
 from cv.spiders.a36kr import A36krSpider
