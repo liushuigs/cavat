@@ -1,6 +1,8 @@
 from flask import Flask, jsonify, request
+from urlparse import urlparse
 from models.domain import Domain
 from models.article import Article
+from models.raw_data import RawData
 app = Flask(__name__)
 
 
@@ -35,8 +37,17 @@ def domain_today():
 
 @app.route("/raw_data", methods=['POST'])
 def raw_data():
-    data = request.json
-    # TODO call scrapy service to store data
+    received = request.json
+    data = {}
+    o = urlparse(received['url'])
+    # get first level domain
+    data['domain'] = '.'.join(o.hostname.split('.')[-2:])
+    data['url'] = received['url']
+    data['html'] = received['source']
+    data['http_status'] = 200
+    data['parsed_as_entry'] = 0
+    data['depth'] = 1
+    RawData.create_entry(**data)
     return jsonify(status="ok")
 
 
