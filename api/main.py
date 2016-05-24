@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from models.domain import Domain
 from models.article import Article
 app = Flask(__name__)
@@ -31,6 +31,13 @@ def domain_today():
         total += article_new
     result = sorted(result, key=lambda k: k['article_num'], reverse=True)
     return jsonify(article_total=total, data=result)
+
+
+@app.route("/raw_data", methods=['POST'])
+def raw_data():
+    data = request.json
+    # TODO call scrapy service to store data
+    return jsonify(status="ok")
 
 
 if __name__ == "__main__":
