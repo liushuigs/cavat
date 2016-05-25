@@ -3,6 +3,10 @@ from urlparse import urlparse
 from models.domain import Domain
 from models.article import Article
 from models.raw_data import RawData
+import requests
+import json
+
+
 app = Flask(__name__)
 
 
@@ -49,6 +53,32 @@ def raw_data():
     data['depth'] = 1
     RawData.create_entry(**data)
     return jsonify(status="ok")
+
+
+@app.route("/search", methods=['GET'])
+def search():
+    keyword = request.args.get('s', '')
+    payload = {
+        "query": {
+            "query_string": {
+                "query": keyword,
+                "fields": [
+                    "title"
+                ]
+            }
+        }
+    }
+    res = requests.post('http://127.0.0.1:9200/_search',
+                        data=json.dumps(payload),
+                        headers={"content-type": "application/json"})
+    ret = res.json()
+
+    result = {
+        'keyword': keyword,
+        'total': ret['hits']['total'],
+        'data': [item['_source'] for item in ret['hits']['hits']],
+    }
+    return jsonify(**result)
 
 
 if __name__ == "__main__":

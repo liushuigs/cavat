@@ -5,11 +5,11 @@
 # Created Time: 一  4/18 22:50:33 2016
 #########################################################################
 #!/bin/bash
-downfile=elasticsearch-2.3.1.zip
-unzipdir=elasticsearch-2.3.1
+downfile=elasticsearch-2.3.3.zip
+unzipdir=elasticsearch-2.3.3
 destdir=es
 if [ ! -f $downfile ];then
-    wget https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/zip/elasticsearch/2.3.1/$downfile
+    wget https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/zip/elasticsearch/2.3.3/$downfile
 fi
 if [ -f $downfile ] && [ ! -d $destdir ];then
     unzip $downfile

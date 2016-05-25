@@ -12,3 +12,6 @@ In Project folder `/search`, executing a script file directly from a command lin
 sh install.sh
 ```
 3. website: `http://localhost:9200/`
+
+### elasticsearch-analysis-ik
+[https://github.com/medcl/elasticsearch-analysis-ik](https://github.com/medcl/elasticsearch-analysis-ik)
