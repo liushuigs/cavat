@@ -1,0 +1,31 @@
+PUT /cavat
+POST /cavat/article/_mapping
+{
+    "article": {
+             "_all": {
+            "analyzer": "ik_max_word",
+            "search_analyzer": "ik_max_word",
+            "term_vector": "no",
+            "store": "false"
+        },
+        "properties": {
+            "title": {
+                "type": "string",
+                "store": "no",
+                "term_vector": "with_positions_offsets",
+                "analyzer": "ik_max_word",
+                "search_analyzer": "ik_max_word",
+                "include_in_all": "true",
+                "boost": 8
+            }
+        }
+    }
+}
+POST /cavat/article/_search
+{
+    "query": {
+        "term" : {
+            "title" : "关于"
+        }
+    }
+}

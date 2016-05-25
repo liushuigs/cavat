@@ -13,9 +13,9 @@ echo '{
     "type" : "jdbc",
     "jdbc" : {
         "url" : "jdbc:mysql://localhost:3306/cavat",
-        "user" : "common",
-        "password" : "common",
-        "sql" : "select *, id as _id from article where id = 3",
+        "user" : "root",
+        "password" : "123456",
+        "sql" : "select *, id as _id from article limit 100",
         "index" : "cavat",
         "type" : "article"
     }
