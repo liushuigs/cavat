@@ -4,6 +4,7 @@ import json
 import re
 import scrapy
 from cv.items.article import ArticleItem
+from cv.models.article import Article
 from urlparse import urljoin
 from twisted.python import log
 
@@ -39,7 +40,8 @@ class A36krSpider(scrapy.Spider):
         if response.url == domain:
             lists = re.findall(r'http:\/\/36kr\.com\/p\/\d+\.html', response.body)
             for link in lists:
-                yield scrapy.Request(link, callback=self.parse_page)
+                if Article.check_exists(link) is False:
+                    yield scrapy.Request(link, callback=self.parse_page)
 
         # parse list
         if 'b_url_code' in response.url:

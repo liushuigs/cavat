@@ -2,8 +2,7 @@
 import datetime
 import re
 import scrapy
-from cv.items.article import ArticleItem
-from ..util.time import datetime_str_to_utc
+from cv.models.article import Article
 from cv.pipelines.medium import parse_html
 
 
@@ -38,7 +37,8 @@ class MediumSpider(scrapy.Spider):
         if response.url.find('/browse/') != -1:
             lists = self.get_article_links(response)
             for link in lists:
-                yield scrapy.Request(link, callback=self.parse_page)
+                if Article.check_exists(link) is False:
+                    yield scrapy.Request(link, callback=self.parse_page)
 
         # TODO parse multiple pages
 
