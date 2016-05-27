@@ -6,6 +6,7 @@ from os.path import splitext, basename, dirname
 from cv.util.time import datetime_str_to_utc
 from urlparse import urlparse, urljoin
 from twisted.python import log
+from cv.models.article import Article
 
 # docs http://stackoverflow.com/questions/2493644/how-to-make-twisted-use-python-logging
 observer = log.PythonLoggingObserver(loggerName=__name__)
@@ -32,7 +33,8 @@ class HuxiuSpider(Spider):
         if self.enabled_crontab:
             for link in updated_everyday:
                 link = urljoin(response.url, link)
-                yield Request(link, callback=self.parse_page)
+                if Article.check_exists(link) is False:
+                    yield Request(link, callback=self.parse_page)
         else:
             latest_link = max(updated_everyday)
             latest_link = urljoin(response.url, latest_link)

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from datetime import datetime
 from json import loads
 from urlparse import urljoin
@@ -10,6 +8,7 @@ from scrapy import Spider, Request
 from ..items.article import ArticleItem
 from ..util.time import datetime_str_to_utc
 from twisted.python import log
+from cv.models.article import Article
 
 # docs http://stackoverflow.com/questions/2493644/how-to-make-twisted-use-python-logging
 observer = log.PythonLoggingObserver(loggerName=__name__)
@@ -46,7 +45,8 @@ class TmtSpider(Spider):
         if self.enabled_crontab:
             for link in home_articles:
                 link = urljoin(url, link)
-                yield Request(link, callback=self.parse_page)
+                if Article.check_exists(link) is False:
+                    yield Request(link, callback=self.parse_page)
         else:
             if "lists/get_index_list" in response.url:
                 offset = int(response.url.find("offset=")) + 7

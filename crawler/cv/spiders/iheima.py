@@ -6,9 +6,11 @@ from ..items.article import ArticleItem
 from ..util.time import datetime_str_to_utc
 from os.path import basename, splitext
 from twisted.python import log
+from cv.models.article import Article
 
 observer = log.PythonLoggingObserver(loggerName=__name__)
 observer.start()
+
 
 class IheimaSpider(scrapy.Spider):
     name = "iheima"
@@ -42,7 +44,8 @@ class IheimaSpider(scrapy.Spider):
         if response.url == domain:
             lists = self.parse_article_links(response)
             for link in lists:
-                yield scrapy.Request(link, callback=self.parse_page)
+                if Article.check_exists(link) is False:
+                    yield scrapy.Request(link, callback=self.parse_page)
 
         # parse multiple pages
         page = re.compile('^' + domain + '/\?page=(\d*)&.*').match(response.url)

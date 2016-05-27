@@ -7,6 +7,7 @@ import re
 from ..util.time import datetime_str_to_utc
 from os.path import splitext, basename
 from twisted.python import log
+from cv.models.article import Article
 
 # docs http://stackoverflow.com/questions/2493644/how-to-make-twisted-use-python-logging
 observer = log.PythonLoggingObserver(loggerName=__name__)
@@ -33,7 +34,8 @@ class PedailySpider(Spider):
         articles = get_list_of_curpage(response)
         if url == 'http://www.pedaily.cn':
             for link in articles:
-                yield Request(link, callback=parse_page)
+                if Article.check_exists(link) is False:
+                    yield Request(link, callback=parse_page)
         else:
             for link in articles:
                 yield Request(link, callback=parse_page)
