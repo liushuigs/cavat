@@ -1,11 +1,9 @@
-# -*- coding: utf-8 -*-
 import datetime
-import json
 import re
 import scrapy
 from cv.items.article import ArticleItem
-from urlparse import urljoin
 from ..util.time import datetime_str_to_utc
+from cv.models.article import Article
 
 
 class VenturebeatSpider(scrapy.Spider):
@@ -52,7 +50,8 @@ class VenturebeatSpider(scrapy.Spider):
         if response.url == domain:
             lists = self.parse_article_links(response)
             for link in lists:
-                yield scrapy.Request(link, callback=self.parse_page)
+                if Article.check_exists(link) is False:
+                    yield scrapy.Request(link, callback=self.parse_page)
 
         # parse multiple pages
         page = re.compile('^' + domain + '\/page\/(\d+)\/').match(response.url)
@@ -81,7 +80,6 @@ class VenturebeatSpider(scrapy.Spider):
 
     @staticmethod
     def parse_page(response):
-        domain = 'http://venturebeat.com'
         now_date = datetime.datetime.utcnow()
         now_date = now_date.strftime('%Y-%m-%d %H:%M:%S')
         published_ts = response.xpath('//meta[@property="bt:pubDate"]/@content').extract_first()

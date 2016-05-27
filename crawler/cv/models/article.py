@@ -25,3 +25,9 @@ class Article(Base):
             filter(Article.url.like("%" + domain + "%"))
         count_q = q.statement.with_only_columns([func.count()]).order_by(None)
         return q.session.execute(count_q).scalar()
+
+    @staticmethod
+    def check_exists(link):
+        record = session.query(Article).\
+            filter(Article.url == link).first()
+        return record is not None

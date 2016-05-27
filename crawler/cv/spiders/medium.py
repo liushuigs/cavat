@@ -2,8 +2,7 @@
 import datetime
 import re
 import scrapy
-from cv.items.article import ArticleItem
-from ..util.time import datetime_str_to_utc
+from cv.models.article import Article
 from cv.pipelines.medium import parse_html
 
 
@@ -31,14 +30,15 @@ class MediumSpider(scrapy.Spider):
         domain = 'https://medium.com'
         # find tech link from hompage
         if response.url == domain:
-            tech_url = response.css('.browsableStreamTabs').xpath('//a[text()="Technology"]/@href').extract_first()
+            tech_url = response.css('.browsableStreamTabs').xpath('//a[text()="Tech"]/@href').extract_first()
             self.logger.info('[find list] %s', tech_url)
             yield scrapy.Request(tech_url)
         # parse tech list page
         if response.url.find('/browse/') != -1:
             lists = self.get_article_links(response)
             for link in lists:
-                yield scrapy.Request(link, callback=self.parse_page)
+                if Article.check_exists(link) is False:
+                    yield scrapy.Request(link, callback=self.parse_page)
 
         # TODO parse multiple pages
 

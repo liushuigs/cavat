@@ -1,12 +1,10 @@
-# -*- coding: utf-8 -*-
 import datetime
 import re
 import scrapy
-from scrapy import signals
-from scrapy.xlib.pydispatch import dispatcher
 from cv.items.article import ArticleItem
 from ..util.time import datetime_str_to_utc
 from twisted.python import log
+from cv.models.article import Article
 
 # docs http://stackoverflow.com/questions/2493644/how-to-make-twisted-use-python-logging
 observer = log.PythonLoggingObserver(loggerName=__name__)
@@ -46,7 +44,8 @@ class TheNextWebSpider(scrapy.Spider):
         if response.url == domain:
             lists = self.parse_article_homepage(response)
             for link in lists:
-                yield scrapy.Request(link, callback=self.parse_page)
+                if Article.check_exists(link) is False:
+                    yield scrapy.Request(link, callback=self.parse_page)
 
         # parse multiple pages
         if self.enable_multi_page:
