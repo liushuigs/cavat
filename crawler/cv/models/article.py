@@ -29,5 +29,5 @@ class Article(Base):
     @staticmethod
     def check_exists(link):
         record = session.query(Article).\
-            filter(Article.url == link)
+            filter(Article.url == link).first()
         return record is not None

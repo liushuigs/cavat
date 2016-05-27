@@ -80,7 +80,6 @@ class VenturebeatSpider(scrapy.Spider):
 
     @staticmethod
     def parse_page(response):
-        domain = 'http://venturebeat.com'
         now_date = datetime.datetime.utcnow()
         now_date = now_date.strftime('%Y-%m-%d %H:%M:%S')
         published_ts = response.xpath('//meta[@property="bt:pubDate"]/@content').extract_first()

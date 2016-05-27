@@ -30,7 +30,7 @@ class MediumSpider(scrapy.Spider):
         domain = 'https://medium.com'
         # find tech link from hompage
         if response.url == domain:
-            tech_url = response.css('.browsableStreamTabs').xpath('//a[text()="Technology"]/@href').extract_first()
+            tech_url = response.css('.browsableStreamTabs').xpath('//a[text()="Tech"]/@href').extract_first()
             self.logger.info('[find list] %s', tech_url)
             yield scrapy.Request(tech_url)
         # parse tech list page
