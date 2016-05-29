@@ -20,7 +20,9 @@ def parse_html(response, url=None):
     time_str = published_ts[:19].replace('T', ' ')
     timezone = -7
     published_ts = datetime_str_to_utc(time_str, timezone)
-    source_type = response.css('.postArticle--full').xpath('//@lang').extract_first()
+    source_type = response.css('.postArticle--full').xpath('//@lang').extract_first().lower()
+    if source_type != 'en':
+        return item
 
     item['url'] = url if url is not None else response.url
     item['title'] = response.xpath('//title/text()').extract_first()
