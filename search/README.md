@@ -13,5 +13,8 @@ sh install.sh
 ```
 3. website: `http://localhost:9200/`
 
-### elasticsearch-analysis-ik
-[https://github.com/medcl/elasticsearch-analysis-ik](https://github.com/medcl/elasticsearch-analysis-ik)
+### plugin
+* [elasticsearch-analysis-ik](https://github.com/medcl/elasticsearch-analysis-ik)
+* [elasticsearch-sql](https://github.com/NLPchina/elasticsearch-sql)
+* [elasticsearch-head](https://github.com/mobz/elasticsearch-head)
+* [elasticsearch-jdbc](https://github.com/jprante/elasticsearch-jdbc)
